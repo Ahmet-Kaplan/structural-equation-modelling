@@ -1,5 +1,5 @@
 ---
-title: "SEM Analysis:"
+title: "SEM Analysis"
 subtitle: "Alexander James Ryan"
 output: pdf_document
 toc: true
@@ -8,9 +8,15 @@ toc_depth: 3
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(readr)
+data <- read_delim("~/Desktop/Structural-equation-modelling/data.csv", 
+    "\t", escape_double = FALSE, trim_ws = TRUE)
 ```
 
 ## Introduction
+
+The dataset is 
 
 ### Dataset explanation
 
