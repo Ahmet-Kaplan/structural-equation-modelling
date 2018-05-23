@@ -1,8 +1,27 @@
 ---
 title: "SEM Analysis:"
+subtitle: "Alexander James Ryan"
 output: pdf_document
+toc: true
+toc_depth: 3
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+## Introduction
+
+### Dataset explanation
+
+
+
+
+
+
+## Model Specification
+
+
+
+
+# Model Assessment + Model Fit
