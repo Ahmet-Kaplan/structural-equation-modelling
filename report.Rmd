@@ -20,9 +20,23 @@ data <- read_delim("~/Desktop/Structural-equation-modelling/data.csv",
 # Create subset, removing unnessary variables
 myvars <- c("race", "age", "engnat", "gender", "hand", "E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8", "E9", "E10", "N1", "N2", "N3", "N4", "N5", "N6", "N7", "N8", "N9", "N10", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8", "O9", "O10")
 ds <- data[myvars]
+
+# Record race, gender, engnat, hand as factors
+ds <- within(ds, {
+  race <- factor(race)
+  gender <- factor(gender)
+  engnat <- factor(engnat)
+  hand <- factor(hand)
+})
+
+ds$gender[ds$gender==0] <- NA
+ds$gender[ds$gender==3] <- NA
+ds$gender[ds$gender==2] <- 0
 ```
 
 ## Introduction
+
+A lot has been written about various psychology Factor Analysis models. In this example, a dataset will be used to show psycholoigcal traits in the latent variables. The list of questions asked have already been systemitcally tailored to derive a good estimate of an individual's latent personality structure. Ignoring the literature already devloped on the model, I hope to show how all these factors relate to one another, including the variables gender.
 
 ### Research Questions
 
@@ -37,7 +51,7 @@ Are there more than just 5 personality latent variables? -> how the hell should 
 
 ### Dataset explanation
 
-The dataset is an online questionaire conducted in 2012. A series of questions were asked and each respondant had to rank their response from 1, they disagree, to 5, they agree (0 meant the question was missed). The questions were not asked in any particular order. Other questions that were asked, were the race of the person, a categorical value, the age of the participant, a binary variable if the partiicpant was fluent in English, the gender of the person, and finally their dominant writing hand.
+The dataset is an online questionaire conducted in 2012. A series of questions using Likert scaling were asked and each respondant had to rank their response from 1, they disagree, to 5, they agree (0 meant the question was missed). The questions were not asked in any particular order. Other questions that were asked, were the race of the person, a categorical value, the age of the participant, a binary variable if the partiicpant was fluent in English, the gender of the person, and finally their dominant writing hand. Acquiesence bias is managed by using questions with opposite meanings, for example, a person who answers agree to question "E5 I start conversations" is not going to also write agree to "E6 I have little to say".
 
 # Dataset Exploration
 ```{r}
@@ -63,7 +77,12 @@ model <- 'E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
 N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
 A =~ A1 + A2 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10
 C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10
-O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10' 
+O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10
+E ~ gender
+N ~ gender
+A ~ gender
+C ~ gender
+O ~ gender' 
 fit <- cfa(model, data=ds)
 
 summary(fit, fit.measures = TRUE, standardized=TRUE)
@@ -75,7 +94,7 @@ fitMeasures(fit, c("cfi", "rmsea", "srmr"))  #selection of fit measures
 fitMeasures(fit, "bic") # gives only one
 inspect(fit) # gives model matrices
 
-semPaths(fit, "model", "stand", style="LISREL", rotation=1, edge.color="black", edge.label.cex=1, mar=c(10,1,2,1))
+semPaths(fit, "model", "stand", style ="LISREL", rotation=1, edge.color="black", edge.label.cex=1, mar=c(10,1,2,1))
 
 ```
 
@@ -84,6 +103,11 @@ semPaths(fit, "model", "stand", style="LISREL", rotation=1, edge.color="black", 
 
 # Model Assessment + Model Fit
 
+## Comparative Fit Index (CFI) 
+
+## Standardized Root Mean Square Residual (SRMR)
+
+## Root Mean Square Error of Approximation (RMSEA)
 
 ## Apendix
 
