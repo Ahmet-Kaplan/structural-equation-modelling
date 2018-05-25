@@ -17,9 +17,9 @@ library(lavaan)
 
 # Load dataset
 data <- read_delim("~/Desktop/Structural-equation-modelling/data.csv", 
-    "\t", escape_double = FALSE, trim_ws = TRUE)
+    ";", escape_double = FALSE, trim_ws = TRUE)
 # Create subset, removing unnessary variables
-myvars <- c("race", "age", "engnat", "gender", "hand", "E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8", "E9", "E10", "N1", "N2", "N3", "N4", "N5", "N6", "N7", "N8", "N9", "N10", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8", "O9", "O10")
+myvars <- c("US", "GB", "FR", "IT", "IN", "DK", "CA", "BE", "AU", "DE", "CN", "race", "age", "engnat", "gender", "hand", "country", "E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8", "E9", "E10", "N1", "N2", "N3", "N4", "N5", "N6", "N7", "N8", "N9", "N10", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8", "O9", "O10")
 ds <- data[myvars]
 
 # Record race, gender, engnat, hand as factors
@@ -30,14 +30,27 @@ ds <- within(ds, {
   hand <- factor(hand)
 })
 
-ds$gender[ds$gender==0] <- NA
-ds$gender[ds$gender==3] <- NA
-ds$gender[ds$gender==2] <- 0
+ds$gender[ds$gender==0] <- NA # deletes this gender option
+ds$gender[ds$gender==3] <- NA # deletes this gender option
+ds$gender[ds$gender==2] <- 0 # changes women to value 0
+
+
+# Create Country Factors
+
+if(ds$country == "US") {
+  ds$us <- 1
+}
+
+# Lists for Models and Fits
+models <- list()
+fits <- list()
+
+
 ```
 
-## Introduction
+### Introduction
 
-A lot has been written about various psychology Factor Analysis models. In this example, a dataset will be used to show psycholoigcal traits in the latent variables. The list of questions asked have already been systemitcally tailored to derive a good estimate of an individual's latent personality structure. Ignoring the literature already devloped on the model, I hope to show how all these factors relate to one another, including the variables gender.
+A lot has been written about various psychological personality models using Factor Analysis. In this example, a dataset will be used to show psycholoigcal traits in the latent variables. The list of questions asked have already been systemitcally tailored to derive a good estimate of an individual's latent personality structure. Ignoring the literature already devloped on the model, I hope to show how all these factors relate to one another, including the variables gender.
 
 ### Research Questions
 
@@ -55,15 +68,12 @@ Are there more than just 5 personality latent variables? -> how the hell should 
 The dataset is an online questionaire conducted in 2012. A series of questions using Likert scaling were asked and each respondant had to rank their response from 1, they disagree, to 5, they agree (0 meant the question was missed). The questions were not asked in any particular order. Other questions that were asked, were the race of the person, a categorical value, the age of the participant, a binary variable if the partiicpant was fluent in English, the gender of the person, and finally their dominant writing hand. Acquiesence bias is managed by using questions with opposite meanings, for example, a person who answers agree to question "E5 I start conversations" is not going to also write agree to "E6 I have little to say".
 
 # Dataset Exploration
-```{r}
+```{r echo=FALSE, results=FALSE, warning=FALSE}
 nrow(ds) # number of subjects = 19719
 ncol(ds) # number of variables = 57
 ```
 
-
-```{r}
-cov(ds) # covariance matrix
-```
+There are survey replies for 19719 different people. There are 50 different survey questions relating to personality, with a Likert scaling of 1=disagree and 5=agree. Each question is designed to reveal a different latent variable
 
 
 
@@ -73,30 +83,30 @@ cov(ds) # covariance matrix
 
 ## Model Specification
 
-```{r}
-models <- list()
-fits <- list()
-
+```{r echo=FALSE, results=FALSE, warning=FALSE}
 # Global Factor
+
 models$m1 <- 'G =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10 + N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10 + A1 + A2 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10 + C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10 + O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10'
 
-# Five Factor Model (A3 needs to go first, so agreeableness factor is positive for high agree)
+# Five Factor Model 
+# (A3 needs to go first, so agreeableness factor is positive for high agree)
+
 models$m2 <- 'E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
 N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
 A =~ A3 + A1 + A2 + A4 + A5 + A6 + A7 + A8 + A9 + A10
 C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10
 O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10'
 
-models$m3 <- 'E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
-N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
-A =~ A2 + A1 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10
-C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10
-O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10
-E =~ gender
-N =~ gender
-A =~ gender
-C =~ gender
-O =~ gender' 
+# Five Factor Model (with gender and dominate hand factor)
+
+models$m3 <- 'E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10 + US + GB + FR + IT + IN + DK + CA + BE + AU + DE + CN
+N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10 + US + GB + FR + IT + IN + DK + CA + BE + AU + DE + CN
+A =~ A2 + A1 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10 + US + GB + FR + IT + IN + DK + CA + BE + AU + DE + CN
+C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10 + US + GB + FR + IT + IN + DK + CA + BE + AU + DE + CN
+O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10 + US + GB + FR + IT + IN + DK + CA + BE + AU + DE + CN' 
+
+
+# Five Factor Model (with correlated residuals)
 
 models$m4 <- 'E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
 N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
@@ -129,24 +139,49 @@ E =~ A7
 E =~ A4
 E =~ A2 
 E =~ A10  
-N =~ C4'
+N =~ C4
+O =~ C10
+O =~ E6
+N =~ O9
+N9 ~~ A3
+N =~  A3
+N =~  A6
+A =~  E3
+N =~  O3
+E =~ N10
+A =~  N9'
 
-
-
-
-
+# Run cfa function and put models into the fit list
 fits$m1 <- cfa(models$m1, data=ds)
 fits$m2 <- cfa(models$m2, data=ds)
 fits$m3 <- cfa(models$m3, data=ds)
 fits$m4 <- cfa(models$m4, data=ds)
 
+# Provide summary of the cfa model
+summary(fits$m3, fit.measures = TRUE, standardized = TRUE)
 
+# Modification Indices
+modificationindices(object = fits$m4, sort. = TRUE)
+
+
+v <- list()
+
+v$fitindicies <- c("npar", "chisq", "df", "pvalue", "cfi", "rmsea", 
+                   "rmsea.ci.lower", "rmsea.ci.upper", "srmr")
+
+# Core fit function
+core_fitmeasure <- function(fit = fits$m1, fitindicies = v$fitindicies, digits = 3 ) {
+  x <- fitMeasures(fit)
+  round(x[fitindicies], digits)
+}
+
+# Create table with comparison of models
 sapply(fits, function(X) core_fitmeasure(X))
 
 
-semPaths(fit, "model", "stand", style ="LISREL", rotation=1, edge.color="black", edge.label.cex=1, mar=c(10,1,2,1))
 
-modificationindices(object = fits$m4, sort. = TRUE)
+# SEM Path
+semPaths(fits$m4, "model", "stand", style ="LISREL", rotation=1, edge.color="black", edge.label.cex=1, mar=c(10,1,2,1))
 
 ```
 
@@ -167,8 +202,8 @@ modificationindices(object = fits$m4, sort. = TRUE)
 
 #### Personality Questions
 
-E1	I am the life of the party.
-E2	I don't talk a lot.
+E1	I am the life of the party.  
+E2	I don't talk a lot.  
 E3	I feel comfortable around people.
 E4	I keep in the background.
 E5	I start conversations.
@@ -222,7 +257,19 @@ O10	I am full of ideas.
 
 race 
 
-1 = Mixed Race, 2 = Arctic (Siberian, Eskimo), 3 = Caucasian (European), 4 = Caucasian (Indian), 5 = Caucasian (Middle East), 6 = Caucasian (North African, Other), 7 = Indigenous Australian, 8 = Native American, 9 = North East Asian (Mongol, Tibetan, Korean Japanese, etc), 10 = Pacific (Polynesian, Micronesian, etc), 11 = South East Asian (Chinese, Thai, Malay, Filipino, etc), 12 = West African, Bushmen, Ethiopian, 13 = Other (0=missed)
+1 = Mixed Race
+2 = Arctic (Siberian, Eskimo)
+3 = Caucasian (European)
+4 = Caucasian (Indian)
+5 = Caucasian (Middle East)
+6 = Caucasian (North African, Other)
+7 = Indigenous Australian
+8 = Native American
+9 = North East Asian (Mongol, Tibetan, Korean Japanese, etc)
+10 = Pacific (Polynesian, Micronesian, etc)
+11 = South East Asian (Chinese, Thai, Malay, Filipino, etc)
+12 = West African, Bushmen, Ethiopian
+13 = Other (0=missed)
 
 
 
