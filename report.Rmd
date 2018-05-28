@@ -158,7 +158,7 @@ fits$m3 <- cfa(models$m3, data=ds)
 fits$m4 <- cfa(models$m4, data=ds)
 
 # Provide summary of the cfa model
-summary(fits$m3, fit.measures = TRUE, standardized = TRUE)
+summary(fits$m4, fit.measures = TRUE, standardized = TRUE)
 
 # Modification Indices
 modificationindices(object = fits$m4, sort. = TRUE)
@@ -195,6 +195,11 @@ semPaths(fits$m4, "model", "stand", style ="LISREL", rotation=1, edge.color="bla
 ## Standardized Root Mean Square Residual (SRMR)
 
 ## Root Mean Square Error of Approximation (RMSEA)
+
+## Bibliography
+
+Goldberg, Lewis R. "The development of markers for the Big-Five factor structure." Psychological assessment 4.1 (1992): 26. <http://dx.doi.org/10.1037/1040-3590.4.1.26>
+
 
 ## Apendix
 
