@@ -21,9 +21,36 @@ data <- read_delim("~/Desktop/Structural-equation-modelling/data.csv",
 # Create subset, removing unnessary variables
 myvars <- c("US", "GB", "FR", "IT", "IN", "DK", "CA", "BE", "AU", "DE", "CN", "race", "age", "engnat", "gender", "hand", "country", "E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8", "E9", "E10", "N1", "N2", "N3", "N4", "N5", "N6", "N7", "N8", "N9", "N10", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8", "O9", "O10")
 ds <- data[myvars]
+ds <- data
 
 # Record race, gender, engnat, hand as factors
 ds <- within(ds, {
+  US <- factor(US)
+  GB <- factor(GB)
+  FR <- factor(FR)
+  IT <- factor(IT)
+  PK <- factor(PK)
+  RO <- factor(RO)
+  IN <- factor(IN)
+  DK <- factor(DK)
+  CA <- factor(CA)
+  BE <- factor(BE)
+  BR <- factor(BR)
+  AU <- factor(AU)
+  DE <- factor(DE)
+  CN <- factor(CN)
+  IE <- factor(IE)
+  AT <- factor(AT)
+  CZ <- factor(CZ)
+  GR <- factor(GR)
+  ID <- factor(ID)
+  JP <- factor(JP)
+  KR <- factor(KR)
+  NL <- factor(NL)
+  NO <- factor(NO)
+  ES <- factor(ES)
+  SE <- factor(SE)
+  FI <- factor(FI)
   race <- factor(race)
   gender <- factor(gender)
   engnat <- factor(engnat)
@@ -35,11 +62,6 @@ ds$gender[ds$gender==3] <- NA # deletes this gender option
 ds$gender[ds$gender==2] <- 0 # changes women to value 0
 
 
-# Create Country Factors
-
-if(ds$country == "US") {
-  ds$us <- 1
-}
 
 # Lists for Models and Fits
 models <- list()
@@ -50,7 +72,7 @@ fits <- list()
 
 ### Introduction
 
-A lot has been written about various psychological personality models using Factor Analysis. In this example, a dataset will be used to show psycholoigcal traits in the latent variables. The list of questions asked have already been systemitcally tailored to derive a good estimate of an individual's latent personality structure. Ignoring the literature already devloped on the model, I hope to show how all these factors relate to one another, including the variables gender.
+A lot has been written about various psychological personality models using Factor Analysis. In this example, a dataset will be used to show psycholoigcal traits in the latent variables. The list of question in the survey have already been systemitcally tailored to derive a good estimate of an individual's latent personality structure. Ignoring the literature already devloped on the model, I hope to show how all these factors relate to one another, including the variables gender.
 
 ### Research Questions
 
@@ -63,9 +85,21 @@ Do other questions have an impact on other latent variables?
 
 Are there more than just 5 personality latent variables? -> how the hell should I test this?
 
+What effect does Gender have on the structure of the personality latent variables? The fundamental question, are there differences in personality structure between men and women.
+
+What effect does age have on the distribution of an individuals personality?
+
+How does one's country affect one's personality distribution? Are some countries higher or lower in personality factors than others?
+
 ### Dataset explanation
 
-The dataset is an online questionaire conducted in 2012. A series of questions using Likert scaling were asked and each respondant had to rank their response from 1, they disagree, to 5, they agree (0 meant the question was missed). The questions were not asked in any particular order. Other questions that were asked, were the race of the person, a categorical value, the age of the participant, a binary variable if the partiicpant was fluent in English, the gender of the person, and finally their dominant writing hand. Acquiesence bias is managed by using questions with opposite meanings, for example, a person who answers agree to question "E5 I start conversations" is not going to also write agree to "E6 I have little to say".
+The dataset is an online questionaire conducted in 2012, with 19719 participants. 50 different survey questions relating to personality using Likert scaling were asked and each respondant had to rank their response from 1, they disagree, to 5, they agree (0 meant the question was missed). The questions were not asked in any particular order. Other questions that were asked, were the race of the person, a categorical value, the age of the participant, a binary variable if the participant was fluent in English, the gender of the person, and finally their dominant writing hand. 
+
+Each question is designed to reveal a different latent variable.
+
+Some critisms of the validity of the data include the presence of acquience bias, where survey participants have a tendency to agree with a disproportiate number of questions, irrespective of the content of the question. This is managed by using questions with opposite meanings, for example, a person who answers agree to question "E5 I start conversations" is not going to also write agree to "E6 I have little to say".
+
+Another critism is that the nature of the responses is self reported, that is, the participants are answering personality questions about themselves. This opens up the possibility of bias in the results. Participants may answer the questions in how they wish to be, rather how they actually feel.  
 
 # Dataset Exploration
 ```{r echo=FALSE, results=FALSE, warning=FALSE}
@@ -73,7 +107,6 @@ nrow(ds) # number of subjects = 19719
 ncol(ds) # number of variables = 57
 ```
 
-There are survey replies for 19719 different people. There are 50 different survey questions relating to personality, with a Likert scaling of 1=disagree and 5=agree. Each question is designed to reveal a different latent variable
 
 
 
@@ -83,32 +116,53 @@ There are survey replies for 19719 different people. There are 50 different surv
 
 ## Model Specification
 
+Global Factor
+When all the questions are loaded onto a global factor the
 ```{r echo=FALSE, results=FALSE, warning=FALSE}
-# Global Factor
+# Global Factor Model
 
 models$m1 <- 'G =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10 + N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10 + A1 + A2 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10 + C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10 + O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10'
 
 # Five Factor Model 
-# (A3 needs to go first, so agreeableness factor is positive for high agree)
+# (A2 needs to go first, so agreeableness factor is positive for high agree)
 
 models$m2 <- 'E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
 N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
-A =~ A3 + A1 + A2 + A4 + A5 + A6 + A7 + A8 + A9 + A10
+A =~ A2 + A1 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10
 C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10
 O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10'
 
+# Five Factor Model with age and gender and engnat and hand
+# (A2 needs to go first, so agreeableness factor is positive for high agree)
+
+models$m3 <- 'E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
+E ~ age + gender + engnat + hand
+N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
+N ~ age + gender + engnat + hand
+A =~ A2 + A1 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10
+A ~ age + gender + engnat + hand
+C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10
+C ~ age + gender + engnat + hand
+O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10
+O ~ age + gender + engnat + hand'
+
 # Five Factor Model (with gender and dominate hand factor)
 
-models$m3 <- 'E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10 + US + GB + FR + IT + IN + DK + CA + BE + AU + DE + CN
-N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10 + US + GB + FR + IT + IN + DK + CA + BE + AU + DE + CN
-A =~ A2 + A1 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10 + US + GB + FR + IT + IN + DK + CA + BE + AU + DE + CN
-C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10 + US + GB + FR + IT + IN + DK + CA + BE + AU + DE + CN
-O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10 + US + GB + FR + IT + IN + DK + CA + BE + AU + DE + CN' 
+models$m4 <- 'E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
+E ~ US+GB+FR+IT+AU+DE+CN+FI+IE+AT+CZ+GR+ID+NL+NO+ES+SE+RO+IN+DK+CA+BE+BR
+N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
+N ~ US+GB+FR+IT+AU+DE+CN+FI+IE+AT+CZ+GR+ID+NL+NO+ES+SE+RO+IN+DK+CA+BE+BR
+A =~ A2 + A1 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10
+A ~ US+GB+FR+IT+AU+DE+CN+FI+IE+AT+CZ+GR+ID+NL+NO+ES+SE+RO+IN+DK+CA+BE+BR
+C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10
+C ~ US+GB+FR+IT+AU+DE+CN+FI+IE+AT+CZ+GR+ID+NL+NO+ES+SE+RO+IN+DK+CA+BE+BR
+O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10
+O ~ US+GB+FR+IT+AU+DE+CN+FI+IE+AT+CZ+GR+ID+NL+NO+ES+SE+RO+IN+DK+CA+BE+BR' 
 
 
 # Five Factor Model (with correlated residuals)
 
-models$m4 <- 'E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
+models$m5 <- 'E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
 N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
 A =~ A2 + A1 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10
 C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10
@@ -158,10 +212,10 @@ fits$m3 <- cfa(models$m3, data=ds)
 fits$m4 <- cfa(models$m4, data=ds)
 
 # Provide summary of the cfa model
-summary(fits$m4, fit.measures = TRUE, standardized = TRUE)
+summary(fits$m3, fit.measures = TRUE, standardized = TRUE)
 
 # Modification Indices
-modificationindices(object = fits$m4, sort. = TRUE)
+modificationindices(object = fits$m3, sort. = TRUE)
 
 
 v <- list()
@@ -180,6 +234,8 @@ sapply(fits, function(X) core_fitmeasure(X))
 
 
 
+
+
 # SEM Path
 semPaths(fits$m4, "model", "stand", style ="LISREL", rotation=1, edge.color="black", edge.label.cex=1, mar=c(10,1,2,1))
 
@@ -195,6 +251,21 @@ semPaths(fits$m4, "model", "stand", style ="LISREL", rotation=1, edge.color="bla
 ## Standardized Root Mean Square Residual (SRMR)
 
 ## Root Mean Square Error of Approximation (RMSEA)
+
+
+# Model results
+
+## Effect of Gender on personality factors
+
+
+
+Effect of dominate hand on personality factors
+
+Effect of 
+
+
+
+
 
 ## Bibliography
 
