@@ -70,11 +70,11 @@ fits <- list()
 
 ```
 
-### Introduction
+## Introduction
 
-A lot has been written about various psychological personality models using Factor Analysis. In this example, a dataset will be used to show psycholoigcal traits in the latent variables. The list of question in the survey have already been systemitcally tailored to derive a good estimate of an individual's latent personality structure. Ignoring the literature already devloped on the model, I hope to show how all these factors relate to one another, including the variables gender.
+A lot has been written about various psychological personality models using Factor Analysis. In this example, a dataset will be used to show psycholoigcal traits in the latent variables. The list of questions in the survey have already been systemitcally tailored to derive a good estimate of an individual's latent personality structure. Ignoring the literature already devloped on the model, I hope to show how all these factors relate to one another, including the variables such as gender and country of origin.
 
-### Research Questions
+## Research Questions
 
 What is the relationship between the Latent variables:
 Extroversion, Openness, Neurotiscism, Agreeableness, Conscioustousness
@@ -91,18 +91,18 @@ What effect does age have on the distribution of an individuals personality?
 
 How does one's country affect one's personality distribution? Are some countries higher or lower in personality factors than others?
 
-### Dataset explanation
+## Dataset explanation
 
-The dataset is an online questionaire conducted in 2012, with 19719 participants. 50 different survey questions relating to personality using Likert scaling were asked and each respondant had to rank their response from 1, they disagree, to 5, they agree (0 meant the question was missed). The questions were not asked in any particular order. Other questions that were asked, were the race of the person, a categorical value, the age of the participant, a binary variable if the participant was fluent in English, the gender of the person, and finally their dominant writing hand. 
+The dataset is an online questionaire conducted in 2012 by Goldberg et al., with 19719 participants. 50 different survey questions (called items) relating to personality using Likert scaling were asked and each respondant had to rank their response from 1, they disagree, to 5, they agree (0 meant the question was missed). The questions were not asked in any particular order. Other questions that were asked, were the race of the person, a categorical value, the age of the participant, a binary variable if the participant was fluent in English, the gender of the person, and finally their dominant writing hand. The IP address of the partipant was also recorded, so there is also a country of origin variable.
 
-Each question is designed to reveal a different latent variable.
+Each item is designed to reveal a different latent variable, the personality traits, Extroversion, Neuroticism, Agreeableness, Consciestounes, and Openness (shortened to ENACO).
 
-Some critisms of the validity of the data include the presence of acquience bias, where survey participants have a tendency to agree with a disproportiate number of questions, irrespective of the content of the question. This is managed by using questions with opposite meanings, for example, a person who answers agree to question "E5 I start conversations" is not going to also write agree to "E6 I have little to say".
+Some critisms of the validity of the data include the presence of acquience bias, where survey participants have a tendency to agree with a disproportiate number of questions, irrespective of the content of the question. This is managed by using items with opposite meanings, for example, a person who answers agree to question "E5 I start conversations" is not going to also write agree to "E6 I have little to say".
 
-Another critism is that the nature of the responses is self reported, that is, the participants are answering personality questions about themselves. This opens up the possibility of bias in the results. Participants may answer the questions in how they wish to be, rather how they actually feel.  
+Another critism is that the nature of the responses is self reported, that is, the participants are answering personality questions about themselves. This opens up the possibility of bias in the results. Participants may answer the questions in how they wish to be, rather how they actually feel.
 
 # Dataset Exploration
-```{r echo=FALSE, results=FALSE, warning=FALSE}
+```{r exploration, echo=FALSE, results=FALSE, warning=FALSE}
 nrow(ds) # number of subjects = 19719
 ncol(ds) # number of variables = 57
 ```
@@ -116,106 +116,153 @@ ncol(ds) # number of variables = 57
 
 ## Model Specification
 
-Global Factor
-When all the questions are loaded onto a global factor the
-```{r echo=FALSE, results=FALSE, warning=FALSE}
+### Global Factor Model
+When all the items are loaded onto a global factor the
+
+
+### Five Factor Model
+
+Each personality latent variable has its own items relating to that latent variable.
+
+
+
+
+
+```{r models, echo=FALSE, results=FALSE, warning=FALSE}
 # Global Factor Model
 
-models$m1 <- 'G =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10 + N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10 + A1 + A2 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10 + C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10 + O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10'
+models$m1 <- '
+    # measurement model
+      G =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10 + N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10 + A1 + A2 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10 + C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10 + O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10'
 
 # Five Factor Model 
 # (A2 needs to go first, so agreeableness factor is positive for high agree)
 
-models$m2 <- 'E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
-N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
-A =~ A2 + A1 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10
-C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10
-O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10'
+models$m2 <- '
+    # measurement model
+      E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
+      N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
+      A =~ A2 + A1 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10
+      C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10
+      O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10'
 
 # Five Factor Model with age and gender and engnat and hand
 # (A2 needs to go first, so agreeableness factor is positive for high agree)
 
-models$m3 <- 'E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
-E ~ age + gender + engnat + hand
-N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
-N ~ age + gender + engnat + hand
-A =~ A2 + A1 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10
-A ~ age + gender + engnat + hand
-C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10
-C ~ age + gender + engnat + hand
-O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10
-O ~ age + gender + engnat + hand'
+models$m3 <- '
+    # measurement model
+      E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
+      N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
+      A =~ A2 + A1 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10
+      C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10
+      O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10
+    # regressions
+      E ~ age + gender + engnat + hand
+      N ~ age + gender + engnat + hand
+      A ~ age + gender + engnat + hand
+      C ~ age + gender + engnat + hand
+      O ~ age + gender + engnat + hand
+'
 
-# Five Factor Model (with gender and dominate hand factor)
+# Five Factor Model (country origin)
 
-models$m4 <- 'E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
-E ~ US+GB+FR+IT+AU+DE+CN+FI+IE+AT+CZ+GR+ID+NL+NO+ES+SE+RO+IN+DK+CA+BE+BR
-N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
-N ~ US+GB+FR+IT+AU+DE+CN+FI+IE+AT+CZ+GR+ID+NL+NO+ES+SE+RO+IN+DK+CA+BE+BR
-A =~ A2 + A1 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10
-A ~ US+GB+FR+IT+AU+DE+CN+FI+IE+AT+CZ+GR+ID+NL+NO+ES+SE+RO+IN+DK+CA+BE+BR
-C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10
-C ~ US+GB+FR+IT+AU+DE+CN+FI+IE+AT+CZ+GR+ID+NL+NO+ES+SE+RO+IN+DK+CA+BE+BR
-O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10
-O ~ US+GB+FR+IT+AU+DE+CN+FI+IE+AT+CZ+GR+ID+NL+NO+ES+SE+RO+IN+DK+CA+BE+BR' 
+models$m4 <- '
+    # measurement model
+      E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
+      N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
+      A =~ A2 + A1 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10
+      C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10
+      O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10
+    # regressions
+      E ~ US+GB+AU+IE+NL+NO++SE+IN+DK+CA+BE+BR
+      N ~ US+GB+AU+DE+NL+NO+IN+DK+CA+BE+BR
+      A ~ US+FR+AU+DE+IE+ID+IN+DK+CA+BE+BR
+      C ~ US+GB+FR+IT+AU+DE+AT+ID+ES+SE+BR
+      O ~ US+FR+IT+AU+DE+AT+ID+NL+NO+ES+RO+IN+DK+CA+BE+BR
+' 
+
+# Five Factor Model (race)
+
+models$m5 <- '
+    # measurement model
+      E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
+      N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
+      A =~ A2 + A1 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10
+      C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10
+      O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10
+    # regressions
+      E ~ r2 + r11
+      N ~ r3 + r4 + r5 + r11 + r12
+      A ~ r1 + r3 + r7 + r9 + r11
+      C ~ r1 + r3 + r4 + r6 + r7 + r9
+      O ~ r1 + r3 + r11 + r12
+' 
 
 
 # Five Factor Model (with correlated residuals)
 
-models$m5 <- 'E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
-N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
-A =~ A2 + A1 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10
-C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10
-O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10
-
-# Correlated residuals
-
-N7 ~~ N8
-O1 ~~ O8
-O2 ~~ O4
-O5 ~~ O10
-O3 ~~ O6
-E8 ~~ E9
-A2 ~~ A7
-A4 ~~ A9
-C2 ~~ C6
-E2 ~~ E6
-N1 ~~ N3
-N4 ~~ N10 
-A5 ~~ A7
-
-# Item that loads onto a different factor
-
-N =~ E3
-O =~ C3
-C =~ A3
-E =~ A7
-E =~ A4
-E =~ A2 
-E =~ A10  
-N =~ C4
-O =~ C10
-O =~ E6
-N =~ O9
-N9 ~~ A3
-N =~  A3
-N =~  A6
-A =~  E3
-N =~  O3
-E =~ N10
-A =~  N9'
+models$m6 <- '
+    # measurement model
+      E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
+      N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
+      A =~ A2 + A1 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10
+      C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10
+      O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10
+    # residual correlations
+      N7 ~~ N8
+      O1 ~~ O8
+      O2 ~~ O4
+      O5 ~~ O10
+      O3 ~~ O6
+      E8 ~~ E9
+      A2 ~~ A7
+      A4 ~~ A9
+      C2 ~~ C6
+      E2 ~~ E6
+      N1 ~~ N3
+      N4 ~~ N10 
+      A5 ~~ A7
+      N9 ~~ A3
+    # cross loadings
+      N =~ E3
+      O =~ C3
+      C =~ A3
+      E =~ A7
+      E =~ A4
+      E =~ A2 
+      E =~ A10  
+      N =~ C4
+      O =~ C10
+      O =~ E6
+      N =~ O9
+      N =~ A3
+      N =~ A6
+      A =~ E3
+      N =~ O3
+      E =~ N10
+      A =~ N9'
 
 # Run cfa function and put models into the fit list
-fits$m1 <- cfa(models$m1, data=ds)
-fits$m2 <- cfa(models$m2, data=ds)
-fits$m3 <- cfa(models$m3, data=ds)
-fits$m4 <- cfa(models$m4, data=ds)
+  fits$m1 <- sem(models$m1, data=ds)
+    summary(fits$m1, fit.measures = TRUE, standardized = TRUE)
 
-# Provide summary of the cfa model
-summary(fits$m3, fit.measures = TRUE, standardized = TRUE)
+  fits$m2 <- sem(models$m2, data=ds)
+    summary(fits$m2, fit.measures = TRUE, standardized = TRUE)
+
+  fits$m3 <- sem(models$m3, data=ds)
+    summary(fits$m3, fit.measures = TRUE, standardized = TRUE)
+
+  fits$m4 <- sem(models$m4, data=ds)
+    summary(fits$m4, fit.measures = TRUE, standardized = TRUE)
+
+  fits$m5 <- sem(models$m5, data=ds)
+    summary(fits$m5, fit.measures = TRUE, standardized = TRUE)
+
+  fits$m6 <- sem(models$m6, data=ds)
+    summary(fits$m6, fit.measures = TRUE, standardized = TRUE)
 
 # Modification Indices
-modificationindices(object = fits$m3, sort. = TRUE)
+modificationindices(object = fits$m6, sort. = TRUE)
 
 
 v <- list()
@@ -231,9 +278,6 @@ core_fitmeasure <- function(fit = fits$m1, fitindicies = v$fitindicies, digits =
 
 # Create table with comparison of models
 sapply(fits, function(X) core_fitmeasure(X))
-
-
-
 
 
 # SEM Path
@@ -255,17 +299,37 @@ semPaths(fits$m4, "model", "stand", style ="LISREL", rotation=1, edge.color="bla
 
 # Model results
 
+## Covariances between Personality Factors
+
+Extraversion loads negatively onto Neurotisim (), and positively onto Agreeableness(), Conscioetousness () and Openness (). This implies those higher in trait Extraversion on average have lower levels of Neurotisim, and higher levels of Agreeableness, Conscientousness and Openness.
+
+Neuroticsism loads negatively onto Agreeableness (), Conscientousness () and Openness (). Agreeableness loads positively onto Conscientousness () and Openness (). This implies that those higher in trait Neuroticsism, have on average lower levels of Agreeableness, Conscientousness and Openness.
+
+Agreeableness loads positively onto Conscioustousness () and Openness (). This implies those with higher levels of the trait Agreeableness have on average higher levels of Consciousness and Openness.
+
+Conscientousness loads positively onto Openness. This implies that those with higher levels of Consciousness have higher levels of Openness.
+
 ## Effect of Gender on personality factors
 
+Gender is loaded onto the latent factors ENACO as regression coefficients. Gender has a statistically significant loading onto each personality factor. The standardized latent variable for Extraversion loading is (-0.123), for Neurotisism (-0.373), for Agreeableness (-0.458), for Consciestiousness (-0.062), and Openness (0.257). These results imply that women on average have a lower level of Extraversion than men, a higher level of Neurotism than men, a higher level of Agreeableness than men, a marginally lower level of Conscioestiousness, and a lower level of Openness than men.
 
+## Effect of dominate hand on personality factors
 
-Effect of dominate hand on personality factors
+Dominate hand is loaded onto the latent factors ENACO as regression coefficients. For Extraversion, Neuotisicm, and Consciousness, the loading is not statistically significant. This implies that being left or right handed does not affect these personality characteristics. For Agreeableness the standardized latent variable is (-0.072) and for Openness it is (0.148). This implies that those who are left handed, or ambidexious, are on average lower in the trait Agreeableness, and also on average they are higher in the trait Openness.
 
-Effect of 
+## Effect of race upon personality factors
 
+13 different categories for race were loaded onto ENACO as regression coefficients. Many of the categories were not statistically significant. 
+((should I write about this???))
 
+## Effect of country of origin factors
 
+As well as the self rated race of the survey participant, the geographical location was also recorded, including the IP address of the country in which the test was conducted. The results were not proportionately distributed amoungst the different countries, with the majority coming from the US, Britain, Ireland, and Australia, all native English speaking countries. 
+Many of the country factors did not load onto 
 
+## Conclusion
+
+something?
 
 ## Bibliography
 
@@ -280,54 +344,54 @@ Goldberg, Lewis R. "The development of markers for the Big-Five factor structure
 
 E1	I am the life of the party.  
 E2	I don't talk a lot.  
-E3	I feel comfortable around people.
-E4	I keep in the background.
-E5	I start conversations.
-E6	I have little to say.
-E7	I talk to a lot of different people at parties.
-E8	I don't like to draw attention to myself.
-E9	I don't mind being the center of attention.
-E10	I am quiet around strangers.
-N1	I get stressed out easily.
-N2	I am relaxed most of the time.
-N3	I worry about things.
-N4	I seldom feel blue.
-N5	I am easily disturbed.
-N6	I get upset easily.
-N7	I change my mood a lot.
-N8	I have frequent mood swings.
-N9	I get irritated easily.
-N10	I often feel blue.
-A1	I feel little concern for others.
-A2	I am interested in people.
-A3	I insult people.
-A4	I sympathize with others' feelings.
-A5	I am not interested in other people's problems.
-A6	I have a soft heart.
-A7	I am not really interested in others.
-A8	I take time out for others.
-A9	I feel others' emotions.
-A10	I make people feel at ease.
-C1	I am always prepared.
-C2	I leave my belongings around.
-C3	I pay attention to details.
-C4	I make a mess of things.
-C5	I get chores done right away.
-C6	I often forget to put things back in their proper place.
-C7	I like order.
-C8	I shirk my duties.
-C9	I follow a schedule.
-C10	I am exacting in my work.
-O1	I have a rich vocabulary.
-O2	I have difficulty understanding abstract ideas.
-O3	I have a vivid imagination.
-O4	I am not interested in abstract ideas.
-O5	I have excellent ideas.
-O6	I do not have a good imagination.
-O7	I am quick to understand things.
-O8	I use difficult words.
-O9	I spend time reflecting on things.
-O10	I am full of ideas.
+E3	I feel comfortable around people.  
+E4	I keep in the background.  
+E5	I start conversations.  
+E6	I have little to say.  
+E7	I talk to a lot of different people at parties.  
+E8	I don't like to draw attention to myself.  
+E9	I don't mind being the center of attention.  
+E10	I am quiet around strangers.  
+N1	I get stressed out easily.  
+N2	I am relaxed most of the time.  
+N3	I worry about things.  
+N4	I seldom feel blue.  
+N5	I am easily disturbed.  
+N6	I get upset easily.  
+N7	I change my mood a lot.  
+N8	I have frequent mood swings.  
+N9	I get irritated easily.  
+N10	I often feel blue.  
+A1	I feel little concern for others.  
+A2	I am interested in people.  
+A3	I insult people.  
+A4	I sympathize with others' feelings.  
+A5	I am not interested in other people's problems.  
+A6	I have a soft heart.  
+A7	I am not really interested in others.  
+A8	I take time out for others.  
+A9	I feel others' emotions.  
+A10	I make people feel at ease.  
+C1	I am always prepared.  
+C2	I leave my belongings around.  
+C3	I pay attention to details.  
+C4	I make a mess of things.  
+C5	I get chores done right away.  
+C6	I often forget to put things back in their proper place.  
+C7	I like order.  
+C8	I shirk my duties.  
+C9	I follow a schedule.  
+C10	I am exacting in my work.  
+O1	I have a rich vocabulary.  
+O2	I have difficulty understanding abstract ideas.  
+O3	I have a vivid imagination.  
+O4	I am not interested in abstract ideas.  
+O5	I have excellent ideas.  
+O6	I do not have a good imagination.  
+O7	I am quick to understand things.  
+O8	I use difficult words.  
+O9	I spend time reflecting on things.  
+O10	I am full of ideas.  
 
 #### Other Questions
 
@@ -347,5 +411,15 @@ race
 12 = West African, Bushmen, Ethiopian
 13 = Other (0=missed)
 
+engnat	Response to "is English your native language?". 1=yes, 2=no (0=missed)
 
+gender	Chosen from a drop down menu. 1=Male, 2=Female, 3=Other (0=missed)
 
+hand	"What hand do you use to write with?". 1=Right, 2=Left, 3=Both (0=missed)
+
+## R Code
+
+```{r ref.label="exploration", eval=FALSE, echo=TRUE}
+```
+```{r ref.label="models", eval=FALSE, echo=TRUE}
+```
