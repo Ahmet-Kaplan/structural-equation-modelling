@@ -16,12 +16,8 @@ library(semPlot)
 library(lavaan)
 
 # Load dataset
-data <- read_delim("~/Desktop/Structural-equation-modelling/data.csv", 
+ds <- read_delim("~/Desktop/Structural-equation-modelling/data.csv", 
     ";", escape_double = FALSE, trim_ws = TRUE)
-# Create subset, removing unnessary variables
-myvars <- c("US", "GB", "FR", "IT", "IN", "DK", "CA", "BE", "AU", "DE", "CN", "race", "age", "engnat", "gender", "hand", "country", "E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8", "E9", "E10", "N1", "N2", "N3", "N4", "N5", "N6", "N7", "N8", "N9", "N10", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8", "O9", "O10")
-ds <- data[myvars]
-ds <- data
 
 # Record race, gender, engnat, hand as factors
 ds <- within(ds, {
@@ -60,7 +56,6 @@ ds <- within(ds, {
 ds$gender[ds$gender==0] <- NA # deletes this gender option
 ds$gender[ds$gender==3] <- NA # deletes this gender option
 ds$gender[ds$gender==2] <- 0 # changes women to value 0
-
 
 
 # Lists for Models and Fits
@@ -105,40 +100,43 @@ Another critism is that the nature of the responses is self reported, that is, t
 ```{r exploration, echo=FALSE, results=FALSE, warning=FALSE}
 nrow(ds) # number of subjects = 19719
 ncol(ds) # number of variables = 57
+mean(ds$age) # mean age is ~26
+median(ds$age) # median age is 22
 ```
-
-
-
-
-
-
 
 
 ## Model Specification
 
-### Global Factor Model
-When all the items are loaded onto a global factor the
+Restrictions are placed on E1, N1, A2, C1, O1, the items that positively correlated with each personality trait. This means that positive loadings relate to stronger values for that particular personality trait, whereas negative loadings imply there is a negative relation. For example, if Extraversion loads negatively (loading=-0.45) onto Neurotisim, this means that those higher in the trait Extraversion, will on average have lower levels of the trait Neurotisim.
 
 
 ### Five Factor Model
 
 Each personality latent variable has its own items relating to that latent variable.
 
+      E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10  
+      N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10  
+      A =~ A2 + A1 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10  
+      C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10  
+      O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10  
 
+Every item is loaded onto every latent variable
+
+## Final Model
+
+Each item loads onto its respective latent variable. The regressions include age and gender loading onto ENACO latent variables, with hand loading onto Agreeableness and Openness. Also included are residual correlations between items. These are items which are similarly worded. For example:  
+N7	I change my mood a lot.  
+N8	I have frequent mood swings.  
 
 
 
 ```{r models, echo=FALSE, results=FALSE, warning=FALSE}
-# Global Factor Model
+# Model 1:  Five Factor Model 
+# (A2 needs to go first, so agreeableness factor is positive for high agree)
+  fits$m1 <- sem(models$m1, data=ds)
+    summary(fits$m1, fit.measures = TRUE, standardized = TRUE)
 
 models$m1 <- '
-    # measurement model
-      G =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10 + N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10 + A1 + A2 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10 + C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10 + O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10'
-
-# Five Factor Model 
-# (A2 needs to go first, so agreeableness factor is positive for high agree)
-
-models$m2 <- '
     # measurement model
       E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
       N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
@@ -146,10 +144,11 @@ models$m2 <- '
       C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10
       O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10'
 
-# Five Factor Model with age and gender and engnat and hand
-# (A2 needs to go first, so agreeableness factor is positive for high agree)
+# Model 2:  Five Factor Model with age and gender and engnat and hand
+  fits$m2 <- sem(models$m2, data=ds)
+    summary(fits$m2, fit.measures = TRUE, standardized = TRUE)
 
-models$m3 <- '
+models$m2 <- '
     # measurement model
       E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
       N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
@@ -157,16 +156,18 @@ models$m3 <- '
       C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10
       O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10
     # regressions
-      E ~ age + gender + engnat + hand
-      N ~ age + gender + engnat + hand
-      A ~ age + gender + engnat + hand
-      C ~ age + gender + engnat + hand
-      O ~ age + gender + engnat + hand
+      E ~ age + gender + hand
+      N ~ age + gender + hand
+      A ~ age + gender + hand
+      C ~ age + gender + hand
+      O ~ age + gender + hand
 '
 
-# Five Factor Model (country origin)
+# Model 3:  Five Factor Model (with Country)
+  fits$m3 <- sem(models$m3, data=ds)
+    summary(fits$m3, fit.measures = TRUE, standardized = TRUE)
 
-models$m4 <- '
+models$m3 <- '
     # measurement model
       E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
       N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
@@ -181,9 +182,11 @@ models$m4 <- '
       O ~ US+FR+IT+AU+DE+AT+ID+NL+NO+ES+RO+IN+DK+CA+BE+BR
 ' 
 
-# Five Factor Model (race)
-
-models$m5 <- '
+# Model 4:  Five Factor Model (with Race)
+  fits$m4 <- sem(models$m4, data=ds)
+    summary(fits$m4, fit.measures = TRUE, standardized = TRUE)
+ 
+models$m4 <- '
     # measurement model
       E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
       N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
@@ -198,10 +201,11 @@ models$m5 <- '
       O ~ r1 + r3 + r11 + r12
 ' 
 
+# Model 5:  Five Factor Model (with correlated residuals)
+  fits$m5 <- sem(models$m5, data=ds)
+    summary(fits$m5, fit.measures = TRUE, standardized = TRUE)
 
-# Five Factor Model (with correlated residuals)
-
-models$m6 <- '
+models$m5 <- '
     # measurement model
       E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
       N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
@@ -242,27 +246,41 @@ models$m6 <- '
       E =~ N10
       A =~ N9'
 
-# Run cfa function and put models into the fit list
-  fits$m1 <- sem(models$m1, data=ds)
-    summary(fits$m1, fit.measures = TRUE, standardized = TRUE)
-
-  fits$m2 <- sem(models$m2, data=ds)
-    summary(fits$m2, fit.measures = TRUE, standardized = TRUE)
-
-  fits$m3 <- sem(models$m3, data=ds)
-    summary(fits$m3, fit.measures = TRUE, standardized = TRUE)
-
-  fits$m4 <- sem(models$m4, data=ds)
-    summary(fits$m4, fit.measures = TRUE, standardized = TRUE)
-
-  fits$m5 <- sem(models$m5, data=ds)
-    summary(fits$m5, fit.measures = TRUE, standardized = TRUE)
-
+# Model 6:  Final model
   fits$m6 <- sem(models$m6, data=ds)
     summary(fits$m6, fit.measures = TRUE, standardized = TRUE)
 
+models$m6 <- '
+    # measurement model
+      E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
+      N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
+      A =~ A2 + A1 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10
+      C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10
+      O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10
+    # regressions
+      E ~ age + gender
+      N ~ age + gender
+      A ~ age + gender + hand
+      C ~ age + gender
+      O ~ age + gender + hand
+    # residual correlations
+      N7 ~~ N8
+      O1 ~~ O8
+      O2 ~~ O4
+      O5 ~~ O10
+      O3 ~~ O6
+      E8 ~~ E9
+      A2 ~~ A7
+      A4 ~~ A9
+      C2 ~~ C6
+      E2 ~~ E6
+      N1 ~~ N3
+      N4 ~~ N10 
+      A5 ~~ A7
+'
+
 # Modification Indices
-modificationindices(object = fits$m6, sort. = TRUE)
+modificationindices(object = fits$m8, sort. = TRUE)
 
 
 v <- list()
@@ -282,6 +300,8 @@ sapply(fits, function(X) core_fitmeasure(X))
 
 # SEM Path
 semPaths(fits$m4, "model", "stand", style ="LISREL", rotation=1, edge.color="black", edge.label.cex=1, mar=c(10,1,2,1))
+
+
 
 ```
 
@@ -311,21 +331,24 @@ Conscientousness loads positively onto Openness. This implies that those with hi
 
 ## Effect of Gender on personality factors
 
-Gender is loaded onto the latent factors ENACO as regression coefficients. Gender has a statistically significant loading onto each personality factor. The standardized latent variable for Extraversion loading is (-0.123), for Neurotisism (-0.373), for Agreeableness (-0.458), for Consciestiousness (-0.062), and Openness (0.257). These results imply that women on average have a lower level of Extraversion than men, a higher level of Neurotism than men, a higher level of Agreeableness than men, a marginally lower level of Conscioestiousness, and a lower level of Openness than men.
+Gender, an exogenous variable, is loaded onto the latent factors ENACO as regression coefficients. Gender has a statistically significant loading onto each personality factor. The standardized latent variable for Extraversion loading is (-0.123), for Neurotisism (-0.373), for Agreeableness (-0.458), for Consciestiousness (-0.062), and Openness (0.257). These results imply that women on average have a lower level of Extraversion than men, a higher level of Neurotism than men, a higher level of Agreeableness than men, a marginally lower level of Conscioestiousness, and a lower level of Openness than men.
+
+## Effect of Age on personality factors
+
+Age was statistically significant for all the latent factors ENACO. Age appears to have a positive effect on Extraversion (), Agreeableness (), Conscioetouness () and Openness (), and a negative effect on Neuroticism (). This result implies that as people age, on average they will experience lower levels of negative emotion.
 
 ## Effect of dominate hand on personality factors
 
-Dominate hand is loaded onto the latent factors ENACO as regression coefficients. For Extraversion, Neuotisicm, and Consciousness, the loading is not statistically significant. This implies that being left or right handed does not affect these personality characteristics. For Agreeableness the standardized latent variable is (-0.072) and for Openness it is (0.148). This implies that those who are left handed, or ambidexious, are on average lower in the trait Agreeableness, and also on average they are higher in the trait Openness.
+Dominate hand, an exogenous variable is loaded onto the latent factors ENACO as regression coefficients. For Extroversion, Neurotisicm, and Consciousness, the loading is not statistically significant. This implies that being left or right handed does not affect these personality characteristics. For Agreeableness the standardized latent variable is (-0.072) and for Openness it is (0.148). This implies that those who are left handed, or ambidexious, are on average lower in the trait Agreeableness, and also on average they are higher in the trait Openness.
 
 ## Effect of race upon personality factors
 
-13 different categories for race were loaded onto ENACO as regression coefficients. Many of the categories were not statistically significant. 
-((should I write about this???))
+13 different categories for race were loaded onto ENACO as regression coefficients. Many of the categories were not statistically significant. Of the categories that were statistically significant, the loadings were small. 
 
 ## Effect of country of origin factors
 
-As well as the self rated race of the survey participant, the geographical location was also recorded, including the IP address of the country in which the test was conducted. The results were not proportionately distributed amoungst the different countries, with the majority coming from the US, Britain, Ireland, and Australia, all native English speaking countries. 
-Many of the country factors did not load onto 
+As well as the self rated race of the survey participant, the geographical location was also recorded, including the IP address of the country in which the test was conducted. The results were not proportionately distributed amoungst the different countries, with the majority of survey participants coming from the US, Britain, Ireland, and Australia, all native English speaking countries. 
+Many of the country factors were not statistically significant.
 
 ## Conclusion
 
@@ -334,6 +357,8 @@ something?
 ## Bibliography
 
 Goldberg, Lewis R. "The development of markers for the Big-Five factor structure." Psychological assessment 4.1 (1992): 26. <http://dx.doi.org/10.1037/1040-3590.4.1.26>
+
+Donnellan, M. B., & Lucas, R. E. (2008). Age Differences in the Big Five Across the Life Span: Evidence from Two National Samples. Psychology and Aging, 23(3), 558–566. http://doi.org/10.1037/a0012897
 
 
 ## Apendix
