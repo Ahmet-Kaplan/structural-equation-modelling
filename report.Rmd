@@ -67,14 +67,14 @@ fits <- list()
 
 ## Introduction
 
-A lot has been written about various psychological personality models using Factor Analysis. In this example, a dataset will be used to show psycholoigcal traits in the latent variables. The list of questions in the survey have already been systemitcally tailored to derive a good estimate of an individual's latent personality structure. Ignoring the literature already devloped on the model, I hope to show how all these factors relate to one another, including the variables such as gender and country of origin.
+A lot has been written about various psychological personality models using Factor Analysis. In this example, a dataset will be used to show psychological traits in the latent variables. The list of questions in the survey have already been systemically tailored to derive a good estimate of an individual's latent personality structure. Ignoring the literature already developed on the model, I hope to show how all these factors relate to one another, including the variables such as gender and country of origin.
 
 ## Research Questions
 
 What is the relationship between the Latent variables:
-Extroversion, Openness, Neurotiscism, Agreeableness, Conscioustousness
+Extroversion, Openness, Neuroticism, Agreeableness, Consciousnesses
 
-Which questions from the questionaire have the biggest impact on their respective latent variable?
+Which questions from the questionnaire have the biggest impact on their respective latent variable?
 
 Do other questions have an impact on other latent variables?
 
@@ -88,13 +88,13 @@ How does one's country affect one's personality distribution? Are some countries
 
 ## Dataset explanation
 
-The dataset is an online questionaire conducted in 2012 by Goldberg et al., with 19719 participants. 50 different survey questions (called items) relating to personality using Likert scaling were asked and each respondant had to rank their response from 1, they disagree, to 5, they agree (0 meant the question was missed). The questions were not asked in any particular order. Other questions that were asked, were the race of the person, a categorical value, the age of the participant, a binary variable if the participant was fluent in English, the gender of the person, and finally their dominant writing hand. The IP address of the partipant was also recorded, so there is also a country of origin variable.
+The dataset is an online questionnaire conducted in 2012 by Goldberg et al., with 19719 participants. 50 different survey questions (called items) relating to personality using Likert scaling were asked and each respondent had to rank their response from 1, they disagree, to 5, they agree (0 meant the question was missed). The questions were not asked in any particular order. Other questions that were asked, were the race of the person, a categorical value, the age of the participant, a binary variable if the participant was fluent in English, the gender of the person, and finally their dominant writing hand. The IP address of the participant was also recorded, so there is also a country of origin variable.
 
-Each item is designed to reveal a different latent variable, the personality traits, Extroversion, Neuroticism, Agreeableness, Consciestounes, and Openness (shortened to ENACO).
+Each item is designed to reveal a different latent variable, the personality traits, Extroversion, Neuroticism, Agreeableness, Conscientiousness, and Openness (shortened to ENACO).
 
-Some critisms of the validity of the data include the presence of acquience bias, where survey participants have a tendency to agree with a disproportiate number of questions, irrespective of the content of the question. This is managed by using items with opposite meanings, for example, a person who answers agree to question "E5 I start conversations" is not going to also write agree to "E6 I have little to say".
+Some criticisms of the validity of the data include the presence of acquiesce bias, where survey participants have a tendency to agree with a disproportionate number of questions, irrespective of the content of the question. This is managed by using items with opposite meanings, for example, a person who answers agree to question "E5 I start conversations" is not going to also write agree to "E6 I have little to say".
 
-Another critism is that the nature of the responses is self reported, that is, the participants are answering personality questions about themselves. This opens up the possibility of bias in the results. Participants may answer the questions in how they wish to be, rather how they actually feel.
+Another criticism is that the nature of the responses is self reported, that is, the participants are answering personality questions about themselves. This opens up the possibility of bias in the results. Participants may answer the questions in how they wish to be, rather how they actually feel.
 
 # Dataset Exploration
 ```{r exploration, echo=FALSE, results=FALSE, warning=FALSE}
@@ -107,12 +107,12 @@ median(ds$age) # median age is 22
 
 ## Model Specification
 
-Restrictions are placed on E1, N1, A2, C1, O1, the items that positively correlated with each personality trait. This means that positive loadings relate to stronger values for that particular personality trait, whereas negative loadings imply there is a negative relation. For example, if Extraversion loads negatively (loading=-0.45) onto Neurotisim, this means that those higher in the trait Extraversion, will on average have lower levels of the trait Neurotisim.
+Restrictions are placed on E1, N1, A2, C1, O1, the items that positively correlated with each personality trait. This means that positive loadings relate to stronger values for that particular personality trait, whereas negative loadings imply there is a negative relation. For example, if Extroversion loads negatively (loading=-0.45) onto Neuroticism, this means that those higher in the trait Extroversion, will on average have lower levels of the trait Neuroticism.
 
 
-### Five Factor Model
+### Model 1:  Five Factor Model
 
-Each personality latent variable has its own items relating to that latent variable.
+Each personality latent variable has its own items relating to that latent variable. This is the model 1, and can be contrasted against with all further models.
 
       E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10  
       N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10  
@@ -120,21 +120,57 @@ Each personality latent variable has its own items relating to that latent varia
       C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10  
       O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10  
 
-Every item is loaded onto every latent variable
+### Model 2:  Five Factor Model (with Age, Gender and Hand)
 
-## Final Model
+The factors age, gender and hand are used as regression coefficients for the personality latent variables. The regressions include age and gender loading onto ENACO latent variables, with hand loading onto Agreeableness and Openness. It was found that the variable hand on the latent factors ENC, was not statistically significant.
 
-Each item loads onto its respective latent variable. The regressions include age and gender loading onto ENACO latent variables, with hand loading onto Agreeableness and Openness. Also included are residual correlations between items. These are items which are similarly worded. For example:  
-N7	I change my mood a lot.  
-N8	I have frequent mood swings.  
+      E ~ age + gender
+      N ~ age + gender
+      A ~ age + gender + hand
+      C ~ age + gender
+      O ~ age + gender + hand
+
+### Model 3:  Five Factor Model (with Country)
+
+Binary variables, representing the country where each survey participant is from. Countries that were not statistically significant were removed.
+
+      E ~ US + GB + AU + IE + NL + NO + SE + IN + DK + CA + BE + BR
+      N ~ US + GB + AU + DE + NL + NO + IN + DK + CA + BE + BR
+      A ~ US + FR + AU + DE + IE + ID + IN + DK + CA + BE + BR
+      C ~ US + GB + FR + IT + AU + DE + AT + ID + ES + SE + BR
+      O ~ US + FR + IT + AU + DE + AT + ID + NL + NO + ES + RO + IN + DK + CA + BE + BR
+
+### Model 4:  Five Factor Model (with correlated residuals and cross loadings)
+
+After using the Modifications indices function, it was found that a lot of items were strongly correlated. For example, item N7 'I change my mood a lot' is very similarly worded to item N8 'I have frequent mood swings', and thus survey participants will probably answer in a similar way to both questions. The cross loadings include items that appear to have a strong relation to other latent factors. For example, item E3 'I feel comfortable around people', can be thought of us a measure of Neuroticism.
+
+    Residual Correlations           Cross Loadings
+      N7 ~~ N8                          N =~ E3
+      O1 ~~ O8                          O =~ C3
+      O2 ~~ O4                          C =~ A3
+      O5 ~~ O10                         E =~ A7
+      O3 ~~ O6                          E =~ A4
+      E8 ~~ E9                          E =~ A2
+      A2 ~~ A7                          E =~ A10
+      A4 ~~ A9                          N =~ C4
+      C2 ~~ C6                          O =~ C10
+      E2 ~~ E6                          O =~ E6
+      N1 ~~ N3                          N =~ O9
+      N4 ~~ N10                         N =~ A3
+      A5 ~~ A7                          N =~ A6
+      N9 ~~ A3                          A =~ E3
+                                        N =~ O3
+                                        E =~ N10
+                                        A =~ N9
+      
+### Model 5: All the all above combined.      
+
 
 
 
 ```{r models, echo=FALSE, results=FALSE, warning=FALSE}
 # Model 1:  Five Factor Model 
 # (A2 needs to go first, so agreeableness factor is positive for high agree)
-  fits$m1 <- sem(models$m1, data=ds)
-    summary(fits$m1, fit.measures = TRUE, standardized = TRUE)
 
 models$m1 <- '
     # measurement model
@@ -144,9 +180,11 @@ models$m1 <- '
       C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10
       O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10'
 
-# Model 2:  Five Factor Model with age and gender and engnat and hand
-  fits$m2 <- sem(models$m2, data=ds)
-    summary(fits$m2, fit.measures = TRUE, standardized = TRUE)
+  fits$m1 <- sem(models$m1, data=ds)
+    summary(fits$m1, fit.measures = TRUE, standardized = TRUE)
+
+
+# Model 2:  Five Factor Model with age and gender and hand
 
 models$m2 <- '
     # measurement model
@@ -162,10 +200,11 @@ models$m2 <- '
       C ~ age + gender + hand
       O ~ age + gender + hand
 '
+  fits$m2 <- sem(models$m2, data=ds)
+    summary(fits$m2, fit.measures = TRUE, standardized = TRUE)
+
 
 # Model 3:  Five Factor Model (with Country)
-  fits$m3 <- sem(models$m3, data=ds)
-    summary(fits$m3, fit.measures = TRUE, standardized = TRUE)
 
 models$m3 <- '
     # measurement model
@@ -175,37 +214,40 @@ models$m3 <- '
       C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10
       O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10
     # regressions
-      E ~ US+GB+AU+IE+NL+NO++SE+IN+DK+CA+BE+BR
+      E ~ US+GB+AU+IE+NL+NO++IN+DK+CA+BE+BR
       N ~ US+GB+AU+DE+NL+NO+IN+DK+CA+BE+BR
-      A ~ US+FR+AU+DE+IE+ID+IN+DK+CA+BE+BR
+      A ~ US+FR+AU+DE+IE+IN+DK+CA+BE+BR
       C ~ US+GB+FR+IT+AU+DE+AT+ID+ES+SE+BR
       O ~ US+FR+IT+AU+DE+AT+ID+NL+NO+ES+RO+IN+DK+CA+BE+BR
-' 
+'
+  fits$m3 <- sem(models$m3, data=ds)
+    summary(fits$m3, fit.measures = TRUE, standardized = TRUE)
 
-# Model 4:  Five Factor Model (with Race)
-  fits$m4 <- sem(models$m4, data=ds)
-    summary(fits$m4, fit.measures = TRUE, standardized = TRUE)
- 
+
+# Bonus Model:  Five Factor Model (with Race)
+
+# models$mb <- '
+#     # measurement model
+#       E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
+#       N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
+#       A =~ A2 + A1 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10
+#       C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10
+#       O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10
+#     # regressions
+#       E ~ r2 + r11
+#       N ~ r3 + r4 + r5 + r11 + r12
+#       A ~ r1 + r3 + r7 + r9 + r11
+#       C ~ r1 + r3 + r4 + r6 + r7 + r9
+#       O ~ r1 + r3 + r11 + r12
+# '
+
+  # fits$mb <- sem(models$mb, data=ds)
+  #   summary(fits$mb, fit.measures = TRUE, standardized = TRUE)
+
+
+# Model 4:  Five Factor Model (with correlated residuals)
+
 models$m4 <- '
-    # measurement model
-      E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
-      N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
-      A =~ A2 + A1 + A3 + A4 + A5 + A6 + A7 + A8 + A9 + A10
-      C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10
-      O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10
-    # regressions
-      E ~ r2 + r11
-      N ~ r3 + r4 + r5 + r11 + r12
-      A ~ r1 + r3 + r7 + r9 + r11
-      C ~ r1 + r3 + r4 + r6 + r7 + r9
-      O ~ r1 + r3 + r11 + r12
-' 
-
-# Model 5:  Five Factor Model (with correlated residuals)
-  fits$m5 <- sem(models$m5, data=ds)
-    summary(fits$m5, fit.measures = TRUE, standardized = TRUE)
-
-models$m5 <- '
     # measurement model
       E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
       N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
@@ -244,13 +286,15 @@ models$m5 <- '
       A =~ E3
       N =~ O3
       E =~ N10
-      A =~ N9'
+      A =~ N9
+'
+  fits$m4 <- sem(models$m4, data=ds)
+    summary(fits$m4, fit.measures = TRUE, standardized = TRUE)
 
-# Model 6:  Final model
-  fits$m6 <- sem(models$m6, data=ds)
-    summary(fits$m6, fit.measures = TRUE, standardized = TRUE)
 
-models$m6 <- '
+# Model 5:  Final model
+
+models$m5 <- '
     # measurement model
       E =~ E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8 + E9 + E10
       N =~ N1 + N2 + N3 + N4 + N5 + N6 + N7 + N8 + N9 + N10
@@ -263,6 +307,11 @@ models$m6 <- '
       A ~ age + gender + hand
       C ~ age + gender
       O ~ age + gender + hand
+      E ~ US+GB+AU+IE+NL+NO+IN+DK+CA+BE+BR
+      N ~ US+GB+AU+DE+NL+NO+IN+DK+CA+BE+BR
+      A ~ US+FR+AU+DE+IE+IN+DK+CA+BE+BR
+      C ~ US+GB+FR+IT+AU+DE+AT+ID+ES+SE+BR
+      O ~ US+FR+IT+AU+DE+AT+ID+NL+NO+ES+RO+IN+DK+CA+BE+BR
     # residual correlations
       N7 ~~ N8
       O1 ~~ O8
@@ -277,16 +326,36 @@ models$m6 <- '
       N1 ~~ N3
       N4 ~~ N10 
       A5 ~~ A7
+    # cross loadings
+      N =~ E3
+      O =~ C3
+      C =~ A3
+      E =~ A7
+      E =~ A4
+      E =~ A2 
+      E =~ A10  
+      N =~ C4
+      O =~ C10
+      O =~ E6
+      N =~ O9
+      N =~ A3
+      N =~ A6
+      A =~ E3
+      N =~ O3
+      E =~ N10
+      A =~ N9
 '
+  fits$m5 <- sem(models$m5, data=ds)
+    summary(fits$m5, fit.measures = TRUE, standardized = TRUE)
+
 
 # Modification Indices
-modificationindices(object = fits$m8, sort. = TRUE)
+#modificationindices(object = fits$m8, sort. = TRUE)
 
 
 v <- list()
 
-v$fitindicies <- c("npar", "chisq", "df", "pvalue", "cfi", "rmsea", 
-                   "rmsea.ci.lower", "rmsea.ci.upper", "srmr")
+v$fitindicies <- c("npar", "chisq", "df", "pvalue", "nfi", "cfi", "tli", "rmsea", "rmsea.ci.lower", "rmsea.ci.upper", "srmr")
 
 # Core fit function
 core_fitmeasure <- function(fit = fits$m1, fitindicies = v$fitindicies, digits = 3 ) {
@@ -294,52 +363,54 @@ core_fitmeasure <- function(fit = fits$m1, fitindicies = v$fitindicies, digits =
   round(x[fitindicies], digits)
 }
 
-# Create table with comparison of models
-sapply(fits, function(X) core_fitmeasure(X))
-
-
-# SEM Path
-semPaths(fits$m4, "model", "stand", style ="LISREL", rotation=1, edge.color="black", edge.label.cex=1, mar=c(10,1,2,1))
-
-
 
 ```
 
-
-
-
 # Model Assessment + Model Fit
+```{r, echo=FALSE}
+# Create table with comparison of models
+sapply(fits, function(X) core_fitmeasure(X))
+```
+Chi squares test is statistically significant in all models, which means there is not a good fit in any of the models. The chi square statistic is very sensitive to sample size, and according to Schlermelleh-Engel et al. (2003), this statistic should not be the sole judgement for acceptance or rejection of a model.
 
-## Comparative Fit Index (CFI) 
+Models 1-4 appear to not have a good fit based on the CFI index. The CFI value is well below the range where it is considered good (>0.90), and for Model 5 and Model 6, it is just under the threshold.
 
-## Standardized Root Mean Square Residual (SRMR)
+According to MacCallum, Browne and Sugawara (1996), an RMSEA value of 0.01, 0.05, and 0.08 indicates excellent, good, and mediocre fits respectively. All models have an acceptable RMSEA, which is in the bounds of an acceptable model. Hu & Bentler (1999) deem an SRMR value of less than (0.08) to be a good fit. All models presented have an SRMR value lower than this threshhold.
 
-## Root Mean Square Error of Approximation (RMSEA)
+The choice comes down to Model 4 and Model 5. Model 4 has a marginally better CFI value, but Model 5 has a superior RMSEA and SRMR. There is more parameters estimated in Model 5.
 
+
+```{r, echo=FALSE}
+# SEM Path
+semPaths(fits$m6, "model", "stand", style ="LISREL", rotation=1, edge.color="black", edge.label.cex=1, mar=c(10,1,2,1))
+```
 
 # Model results
+```{r, echo=FALSE}
+parameterEstimates(fits$m6)
+```
 
 ## Covariances between Personality Factors
 
-Extraversion loads negatively onto Neurotisim (), and positively onto Agreeableness(), Conscioetousness () and Openness (). This implies those higher in trait Extraversion on average have lower levels of Neurotisim, and higher levels of Agreeableness, Conscientousness and Openness.
+Extroversion loads negatively onto Neuroticism (), and positively onto Agreeableness(), Conscientiousness () and Openness (). This implies those higher in trait Extroversion on average have lower levels of Neuroticism, and higher levels of Agreeableness, Conscientiousness and Openness.
 
-Neuroticsism loads negatively onto Agreeableness (), Conscientousness () and Openness (). Agreeableness loads positively onto Conscientousness () and Openness (). This implies that those higher in trait Neuroticsism, have on average lower levels of Agreeableness, Conscientousness and Openness.
+Neuroticism loads negatively onto Agreeableness (), Conscientiousness () and Openness (). Agreeableness loads positively onto Conscientiousness () and Openness (). This implies that those higher in trait Neuroticism, have on average lower levels of Agreeableness, Conscientiousness and Openness.
 
-Agreeableness loads positively onto Conscioustousness () and Openness (). This implies those with higher levels of the trait Agreeableness have on average higher levels of Consciousness and Openness.
+Agreeableness loads positively onto Consciousnesses () and Openness (). This implies those with higher levels of the trait Agreeableness have on average higher levels of Consciousness and Openness.
 
-Conscientousness loads positively onto Openness. This implies that those with higher levels of Consciousness have higher levels of Openness.
+Conscientiousness loads positively onto Openness. This implies that those with higher levels of Consciousness have higher levels of Openness.
 
-## Effect of Gender on personality factors
+## Effect of Gender on Personality Factors
 
-Gender, an exogenous variable, is loaded onto the latent factors ENACO as regression coefficients. Gender has a statistically significant loading onto each personality factor. The standardized latent variable for Extraversion loading is (-0.123), for Neurotisism (-0.373), for Agreeableness (-0.458), for Consciestiousness (-0.062), and Openness (0.257). These results imply that women on average have a lower level of Extraversion than men, a higher level of Neurotism than men, a higher level of Agreeableness than men, a marginally lower level of Conscioestiousness, and a lower level of Openness than men.
+Gender, an exogenous variable, is loaded onto the latent factors ENACO as regression coefficients. Gender has a statistically significant loading onto each personality factor. The standardized latent variable for Extroversion loading is (-0.123), for Neuroticism (-0.373), for Agreeableness (-0.458), for Conscientiousness (-0.062), and Openness (0.257). These results imply that women on average have a lower level of Extroversion than men, a higher level of Neuroticism than men, a higher level of Agreeableness than men, a marginally lower level of Conscientiousness, and a lower level of Openness than men.
 
 ## Effect of Age on personality factors
 
-Age was statistically significant for all the latent factors ENACO. Age appears to have a positive effect on Extraversion (), Agreeableness (), Conscioetouness () and Openness (), and a negative effect on Neuroticism (). This result implies that as people age, on average they will experience lower levels of negative emotion.
+Age was statistically significant for all the latent factors ENACO. Age appears to have a positive effect on Extroversion (), Agreeableness (), Consciousnesses () and Openness (), and a negative effect on Neuroticism (). This result implies that as people age, on average they will experience lower levels of negative emotion.
 
 ## Effect of dominate hand on personality factors
 
-Dominate hand, an exogenous variable is loaded onto the latent factors ENACO as regression coefficients. For Extroversion, Neurotisicm, and Consciousness, the loading is not statistically significant. This implies that being left or right handed does not affect these personality characteristics. For Agreeableness the standardized latent variable is (-0.072) and for Openness it is (0.148). This implies that those who are left handed, or ambidexious, are on average lower in the trait Agreeableness, and also on average they are higher in the trait Openness.
+Dominate hand, an exogenous variable is loaded onto the latent factors ENACO as regression coefficients. For Extroversion, Neuroticism, and Consciousness, the loading is not statistically significant. This implies that being left or right handed does not affect these personality characteristics. For Agreeableness, the standardized latent variable is (-0.072) and for Openness it is (0.148). This implies that those who are left handed, or ambidextrous, are on average lower in the trait Agreeableness, and also on average they are higher in the trait Openness.
 
 ## Effect of race upon personality factors
 
@@ -360,6 +431,11 @@ Goldberg, Lewis R. "The development of markers for the Big-Five factor structure
 
 Donnellan, M. B., & Lucas, R. E. (2008). Age Differences in the Big Five Across the Life Span: Evidence from Two National Samples. Psychology and Aging, 23(3), 558–566. http://doi.org/10.1037/a0012897
 
+MacCallum, R. C., Browne, M. W., & Sugawara, H. M. (1996). Power analysis and determination of sample size for covariance structure modeling. Psychological Methods, 1, 130-149.
+
+Hu, L., & Bentler, P. M. (1999). Cutoff criteria for fit indexes in covariance structure analysis: Conventional criteria versus new alternatives. Structural Equation Modeling, 6, 1–55.
+
+Schermelleh-Engel, K., Moosbrugger, H., and Müller, H. (2003), “Evaluating the Fit of Structural Equation Models: Tests of Significance and Descriptive Goodnessof-Fit Measures”, Methods of Psychological Research Online, Vol. 8, No. 2, pp.23-74.
 
 ## Apendix
 
