@@ -53,55 +53,51 @@ ds <- within(ds, {
   hand <- factor(hand)
 })
 
-ds$gender[ds$gender==0] <- NA # deletes this gender option
-ds$gender[ds$gender==3] <- NA # deletes this gender option
-ds$gender[ds$gender==2] <- 0 # changes women to value 0
-
-
 # Lists for Models and Fits
 models <- list()
 fits <- list()
 
 
 ```
-
+\newpage
 ## Introduction
 
-A lot has been written about various psychological personality models using Factor Analysis. In this example, a dataset will be used to show psychological traits in the latent variables. The list of questions in the survey have already been systemically tailored to derive a good estimate of an individual's latent personality structure. Ignoring the literature already developed on the model, I hope to show how all these factors relate to one another, including the variables such as gender and country of origin.
+There have been a lot of attempts to model the human pschylogical structure using statistics. These modelling teniques fall under the category of Confirmatory Factor Analysis or Structural Equation Modelling. These are techniques designed to estimate some factor, called a latent variable, that is either impossible or very difficult to measure, using other data sources. These data sources may be in the form of surveys, or questionaires, or more recently, in the form of 'Likes' on Facebook, or 'Followers' and 'Following' lists on Twitter. This field is still in its infancy. In this paper, a dataset from a psychological study will be used to reveal the psychological traits, known as the 'Big Five Factors'.
+The list of questions in the survey have already been systemically tailored to derive a good estimate of an individual's latent personality structure. Ignoring the extensive literature already developed on the model, I hope to show how all these factors relate to one another, including the variables such gender and country of origin.
 
 ## Research Questions
 
-What is the relationship between the Latent variables:
-Extroversion, Openness, Neuroticism, Agreeableness, Consciousnesses
-
-Which questions from the questionnaire have the biggest impact on their respective latent variable?
-
-Do other questions have an impact on other latent variables?
-
-Are there more than just 5 personality latent variables? -> how the hell should I test this?
-
-What effect does Gender have on the structure of the personality latent variables? The fundamental question, are there differences in personality structure between men and women.
-
-What effect does age have on the distribution of an individuals personality?
-
-How does one's country affect one's personality distribution? Are some countries higher or lower in personality factors than others?
+Some of the research questions to be devleoped in this paper include:
+The relationship between the Latent variables:  
+Extroversion, Openness, Neuroticism, Agreeableness, Consciousnesses  
+Which items load onto different factors  
+What are the differences in personality structure between Men and Women
+What effect does age have on the distribution of an individual's personality structure
+How does one's country affect one's personality distribution
+Are some countries higher or lower in personality factors than others
 
 ## Dataset explanation
 
-The dataset is an online questionnaire conducted in 2012 by Goldberg et al., with 19719 participants. 50 different survey questions (called items) relating to personality using Likert scaling were asked and each respondent had to rank their response from 1, they disagree, to 5, they agree (0 meant the question was missed). The questions were not asked in any particular order. Other questions that were asked, were the race of the person, a categorical value, the age of the participant, a binary variable if the participant was fluent in English, the gender of the person, and finally their dominant writing hand. The IP address of the participant was also recorded, so there is also a country of origin variable.
+The dataset is an online questionnaire conducted in 2012 by Goldberg et al., with 19719 participants, 12111 men and 7608 women. 50 different survey questions (called items) relating to personality using Likert scaling were asked and each respondent had to rank their response from 1, they disagree, to 5, they agree (0 meant the question was missed). The questions were not asked in any particular order. Other questions that were asked, were the race of the person, a categorical value, the age of the participant, a binary variable if the participant was fluent in English, the gender of the person, and finally their dominant writing hand. The IP address of the participant was also recorded, so there is also a country of origin variable.
 
 Each item is designed to reveal a different latent variable, the personality traits, Extroversion, Neuroticism, Agreeableness, Conscientiousness, and Openness (shortened to ENACO).
+
+## Dataset Limitations
 
 Some criticisms of the validity of the data include the presence of acquiesce bias, where survey participants have a tendency to agree with a disproportionate number of questions, irrespective of the content of the question. This is managed by using items with opposite meanings, for example, a person who answers agree to question "E5 I start conversations" is not going to also write agree to "E6 I have little to say".
 
 Another criticism is that the nature of the responses is self reported, that is, the participants are answering personality questions about themselves. This opens up the possibility of bias in the results. Participants may answer the questions in how they wish to be, rather how they actually feel.
 
-# Dataset Exploration
+There may be bias present in who decides to conduct an online survey. A participant will need access to a computer, be reasonably computer literate, and have access to the internet. This enough would bias any results, in trying to estimate personality structures in a population.
+
+## Dataset Exploration
 ```{r exploration, echo=FALSE, results=FALSE, warning=FALSE}
+library(plyr)
 nrow(ds) # number of subjects = 19719
 ncol(ds) # number of variables = 57
 mean(ds$age) # mean age is ~26
 median(ds$age) # median age is 22
+count(ds, 'gender')
 ```
 
 
@@ -163,7 +159,7 @@ After using the Modifications indices function, it was found that a lot of items
                                         E =~ N10
                                         A =~ N9
       
-### Model 5: All the all above combined.      
+### Model 5: All the above combined into one model.      
 
 
 
@@ -218,7 +214,7 @@ models$m3 <- '
       N ~ US+GB+AU+DE+NL+NO+IN+DK+CA+BE+BR
       A ~ US+FR+AU+DE+IE+IN+DK+CA+BE+BR
       C ~ US+GB+FR+IT+AU+DE+AT+ID+ES+SE+BR
-      O ~ US+FR+IT+AU+DE+AT+ID+NL+NO+ES+RO+IN+DK+CA+BE+BR
+      O ~ US+FR+IT+DE+AT+ID+NL+NO+ES+RO+IN+DK+CA+BE+BR
 '
   fits$m3 <- sem(models$m3, data=ds)
     summary(fits$m3, fit.measures = TRUE, standardized = TRUE)
@@ -291,7 +287,6 @@ models$m4 <- '
   fits$m4 <- sem(models$m4, data=ds)
     summary(fits$m4, fit.measures = TRUE, standardized = TRUE)
 
-
 # Model 5:  Final model
 
 models$m5 <- '
@@ -311,7 +306,7 @@ models$m5 <- '
       N ~ US+GB+AU+DE+NL+NO+IN+DK+CA+BE+BR
       A ~ US+FR+AU+DE+IE+IN+DK+CA+BE+BR
       C ~ US+GB+FR+IT+AU+DE+AT+ID+ES+SE+BR
-      O ~ US+FR+IT+AU+DE+AT+ID+NL+NO+ES+RO+IN+DK+CA+BE+BR
+      O ~ US+FR+IT+DE+AT+ID+NL+NO+ES+RO+IN+DK+CA+BE+BR
     # residual correlations
       N7 ~~ N8
       O1 ~~ O8
@@ -349,10 +344,6 @@ models$m5 <- '
     summary(fits$m5, fit.measures = TRUE, standardized = TRUE)
 
 
-# Modification Indices
-#modificationindices(object = fits$m8, sort. = TRUE)
-
-
 v <- list()
 
 v$fitindicies <- c("npar", "chisq", "df", "pvalue", "nfi", "cfi", "tli", "rmsea", "rmsea.ci.lower", "rmsea.ci.upper", "srmr")
@@ -369,62 +360,93 @@ core_fitmeasure <- function(fit = fits$m1, fitindicies = v$fitindicies, digits =
 # Model Assessment + Model Fit
 ```{r, echo=FALSE}
 # Create table with comparison of models
-sapply(fits, function(X) core_fitmeasure(X))
+knitr::kable(sapply(fits, function(X) core_fitmeasure(X)))
 ```
+
 Chi squares test is statistically significant in all models, which means there is not a good fit in any of the models. The chi square statistic is very sensitive to sample size, and according to Schlermelleh-Engel et al. (2003), this statistic should not be the sole judgement for acceptance or rejection of a model.
 
-Models 1-4 appear to not have a good fit based on the CFI index. The CFI value is well below the range where it is considered good (>0.90), and for Model 5 and Model 6, it is just under the threshold.
+Models 1-4 appear to not have a good fit based on the CFI index. The CFI value is well below the range where it is considered good (>0.90), and for Model 4 and Model 5, it is just under the threshold.
 
-According to MacCallum, Browne and Sugawara (1996), an RMSEA value of 0.01, 0.05, and 0.08 indicates excellent, good, and mediocre fits respectively. All models have an acceptable RMSEA, which is in the bounds of an acceptable model. Hu & Bentler (1999) deem an SRMR value of less than (0.08) to be a good fit. All models presented have an SRMR value lower than this threshhold.
+According to MacCallum, Browne and Sugawara (1996), an RMSEA value of (0.01), (0.05), and (0.08) indicates excellent, good, and mediocre fits respectively. All models have an acceptable RMSEA, which is in the bounds of an acceptable model. Hu & Bentler (1999) deem an SRMR value of less than (0.08) to be a good fit. All models presented have an SRMR value lower than this threshhold.
 
-The choice comes down to Model 4 and Model 5. Model 4 has a marginally better CFI value, but Model 5 has a superior RMSEA and SRMR. There is more parameters estimated in Model 5.
+The choice comes down to Model 4 and Model 5. Model 4 has a marginally better CFI value, but Model 5 has a superior RMSEA and SRMR. There is more parameters estimated in Model 5, and thus we can learn more about the personality structures, and how they relate.
 
 
 ```{r, echo=FALSE}
 # SEM Path
-semPaths(fits$m6, "model", "stand", style ="LISREL", rotation=1, edge.color="black", edge.label.cex=1, mar=c(10,1,2,1))
+semPaths(fits$m5, "model", "stand", style ="LISREL", rotation=1, edge.color="black", edge.label.cex=1, mar=c(10,1,2,1))
 ```
 
 # Model results
-```{r, echo=FALSE}
-parameterEstimates(fits$m6)
-```
 
 ## Covariances between Personality Factors
 
-Extroversion loads negatively onto Neuroticism (), and positively onto Agreeableness(), Conscientiousness () and Openness (). This implies those higher in trait Extroversion on average have lower levels of Neuroticism, and higher levels of Agreeableness, Conscientiousness and Openness.
+Extroversion loads negatively onto Neuroticism (-0.252), and positively onto Agreeableness (0.253), Conscientiousness (0.101) and Openness (0.224). This implies those higher in trait Extroversion on average have lower levels of Neuroticism, and higher levels of Agreeableness, Conscientiousness and Openness.
 
-Neuroticism loads negatively onto Agreeableness (), Conscientiousness () and Openness (). Agreeableness loads positively onto Conscientiousness () and Openness (). This implies that those higher in trait Neuroticism, have on average lower levels of Agreeableness, Conscientiousness and Openness.
+Neuroticism loads negatively onto Conscientiousness (-0.223) and Openness (-0.169). It's loading on Agreeableness is not significant (-0.028). This implies that those higher in trait Neuroticism, have on average lower levels of Conscientiousness and Openness.
 
-Agreeableness loads positively onto Consciousnesses () and Openness (). This implies those with higher levels of the trait Agreeableness have on average higher levels of Consciousness and Openness.
+Agreeableness loads positively onto Consciousnesses (0.128) and Openness (0.160). This implies those with higher levels of the trait Agreeableness have on average higher levels of Consciousness and Openness.
 
-Conscientiousness loads positively onto Openness. This implies that those with higher levels of Consciousness have higher levels of Openness.
+Conscientiousness loads marginally positively onto Openness (0.095). This implies that those with higher levels of Consciousness on average may have higher levels of Openness.
 
 ## Effect of Gender on Personality Factors
 
-Gender, an exogenous variable, is loaded onto the latent factors ENACO as regression coefficients. Gender has a statistically significant loading onto each personality factor. The standardized latent variable for Extroversion loading is (-0.123), for Neuroticism (-0.373), for Agreeableness (-0.458), for Conscientiousness (-0.062), and Openness (0.257). These results imply that women on average have a lower level of Extroversion than men, a higher level of Neuroticism than men, a higher level of Agreeableness than men, a marginally lower level of Conscientiousness, and a lower level of Openness than men.
+Gender, an exogenous variable, is loaded onto the latent factors ENACO as regression coefficients. Women were coded with 0, while men were coded with 1. Gender has a statistically significant loading onto each personality factor. The standardized latent variable for Extroversion loading is (-0.109), for Neuroticism (-0.369), for Agreeableness (-0.458), for Conscientiousness (-0.062), and Openness (0.257). These results imply that women on average have a lower level of Extroversion than men, a higher level of Neuroticism than men, a higher level of Agreeableness than men, a marginally lower level of Conscientiousness, and a lower level of Openness than men.
 
 ## Effect of Age on personality factors
 
-Age was statistically significant for all the latent factors ENACO. Age appears to have a positive effect on Extroversion (), Agreeableness (), Consciousnesses () and Openness (), and a negative effect on Neuroticism (). This result implies that as people age, on average they will experience lower levels of negative emotion.
+Age was statistically significant for all the latent factors ENACO. Age appears to have a positive effect on Extroversion (coefficient=0.008), Agreeableness (coefficient=0.006), Consciousnesses (coefficient=0.014) and Openness (coefficient=0.005), and a negative effect on Neuroticism (coefficient=-0.012). This result implies that as people age, on average they will experience lower levels of negative emotion.
 
 ## Effect of dominate hand on personality factors
 
-Dominate hand, an exogenous variable is loaded onto the latent factors ENACO as regression coefficients. For Extroversion, Neuroticism, and Consciousness, the loading is not statistically significant. This implies that being left or right handed does not affect these personality characteristics. For Agreeableness, the standardized latent variable is (-0.072) and for Openness it is (0.148). This implies that those who are left handed, or ambidextrous, are on average lower in the trait Agreeableness, and also on average they are higher in the trait Openness.
-
-## Effect of race upon personality factors
-
-13 different categories for race were loaded onto ENACO as regression coefficients. Many of the categories were not statistically significant. Of the categories that were statistically significant, the loadings were small. 
+Dominate hand, an exogenous variable is loaded onto the latent factors ENACO as regression coefficients. Right hand coded as 1, Left handed coded as 2, ambidextous coded as 3. For Extroversion, Neuroticism, and Consciousness, the loading was not statistically significant. This implies that being left or right handed does not affect these personality characteristics. For Agreeableness, the coefficient is (-0.030) and for Openness it is (0.090). This implies that those who are left handed, or ambidextrous, are on average lower in the trait Agreeableness, and also on average they are higher in the trait Openness.
 
 ## Effect of country of origin factors
 
-As well as the self rated race of the survey participant, the geographical location was also recorded, including the IP address of the country in which the test was conducted. The results were not proportionately distributed amoungst the different countries, with the majority of survey participants coming from the US, Britain, Ireland, and Australia, all native English speaking countries. 
-Many of the country factors were not statistically significant.
+As well as the self rated race of the survey participant, the geographical location was also recorded, including the IP address of the country in which the test was conducted. The results were not proportionately distributed amoungst the different countries, with the majority of survey participants coming from the US, Britain, Ireland, and Australia, all native English speaking countries. Many of the country factors were not statistically significant, and these were removed from the model.
+
+Below is a list of the Country and their effect upon each latent factors.
+
+#### Extroversion  
+```{r, echo=FALSE, warning=FALSE}
+library(readxl)
+country_est <- read_excel("~/Desktop/Structural-equation-modelling/country_est.xlsx")
+knitr::kable(x = country_est[1:11,])
+```
+
+#### Neuroticism
+
+```{r, echo=FALSE, warning=FALSE}
+knitr::kable(x = country_est[12:22,])
+```
+
+#### Agreeableness
+
+```{r, echo=FALSE, warning=FALSE}
+knitr::kable(x = country_est[23:32,])
+```
+
+#### Conscientiousness
+
+```{r, echo=FALSE, warning=FALSE}
+knitr::kable(x = country_est[33:43,])
+```
+
+#### Openness
+
+```{r, echo=FALSE, warning=FALSE}
+knitr::kable(x = country_est[44:58,])
+```
 
 ## Conclusion
 
-something?
+Despite the limitations with the dataset, there are a number of revealing ideas with this model. 
 
+
+
+
+
+\newpage
 ## Bibliography
 
 Goldberg, Lewis R. "The development of markers for the Big-Five factor structure." Psychological assessment 4.1 (1992): 26. <http://dx.doi.org/10.1037/1040-3590.4.1.26>
@@ -439,7 +461,7 @@ Schermelleh-Engel, K., Moosbrugger, H., and Müller, H. (2003), “Evaluating th
 
 ## Apendix
 
-### Questions asked
+### Questions asked in Survey
 
 #### Personality Questions
 
@@ -520,7 +542,7 @@ hand	"What hand do you use to write with?". 1=Right, 2=Left, 3=Both (0=missed)
 
 ## R Code
 
-```{r ref.label="exploration", eval=FALSE, echo=TRUE}
+```{r ref.label="exploration", eval=TRUE, echo=TRUE}
 ```
-```{r ref.label="models", eval=FALSE, echo=TRUE}
+```{r ref.label="models", eval=TRUE, echo=TRUE}
 ```
