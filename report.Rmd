@@ -1,6 +1,6 @@
 ---
 title: "SEM Analysis"
-subtitle: "Alexander James Ryan"
+subtitle: "Alexander James Ryan     r0693898      3rd June 2018"
 output: pdf_document
 toc: true
 toc_depth: 3
@@ -57,24 +57,32 @@ ds <- within(ds, {
 models <- list()
 fits <- list()
 
-
 ```
 \newpage
+
+## Abstract
+
+Using a personality dataset from Goldberg et. al. (2000), a series of Structural Equation Models were built to estimate the latent variables Extroversion, Neuroticism, Agreeableness, Conscientiousness and Openness. The model indicated that there is a large amount of cross loading between various items and different latent factors, and strong correlations between items.  
+This model showed that on average there was a positive correlation between the trait Extroversion and the traits Agreeableness, Consciousnesses, and Openness, while there was a negative correlation with the trait Neuroticism. It was also found that on average there was a negative correlation between the trait Neuroticism and the traits Consciousnesses and Openness. In addition, it was found on average there was a positive correlation between the trait Agreeableness and Consciousnesses and Openness.  
+It was found that Women on average have higher levels of the traits Extroversion, Neuroticism, Agreeableness and Conscietousness, while Men were found to be higher on average in the trait Openness. The data also indicated that age on average has a mild negative effect on the trait Neuroticism, which implies that as one ages, the amount of negative emotion experienced should decrease on average. The psychological structure of a number of different couuntries were also explored, indicating which countries tended to be higher or lower on average in the psychological traits.
+
+
 ## Introduction
 
-There have been a lot of attempts to model the human pschylogical structure using statistics. These modelling teniques fall under the category of Confirmatory Factor Analysis or Structural Equation Modelling. These are techniques designed to estimate some factor, called a latent variable, that is either impossible or very difficult to measure, using other data sources. These data sources may be in the form of surveys, or questionaires, or more recently, in the form of 'Likes' on Facebook, or 'Followers' and 'Following' lists on Twitter. This field is still in its infancy. In this paper, a dataset from a psychological study will be used to reveal the psychological traits, known as the 'Big Five Factors'.
+There have been a lot of attempts to model the human psychological structure using statistics. These modelling techniques fall under the category of Confirmatory Factor Analysis or Structural Equation Modelling. These are techniques designed to estimate factors, called a latent variable, that are either impossible or very difficult to measure, using other data sources. These data sources may be in the form of surveys, or questionnaires, or more recently, in the form of 'Likes' on Facebook, or 'Followers' and 'Following' lists on Twitter. Research in this field is still in its infancy, and its insiduous possibilities have only been brought to light in the last eighteen months, see Cambridge Analytica.
+In this paper, a dataset from a psychological study conducted by Goldberg et. al. in 2012 will be used to reveal the psychological traits, known as the 'Big Five Factors'.
 The list of questions in the survey have already been systemically tailored to derive a good estimate of an individual's latent personality structure. Ignoring the extensive literature already developed on the model, I hope to show how all these factors relate to one another, including the variables such gender and country of origin.
 
 ## Research Questions
 
-Some of the research questions to be devleoped in this paper include:
+Some of the research questions to be developed in this paper include:
 The relationship between the Latent variables:  
 Extroversion, Openness, Neuroticism, Agreeableness, Consciousnesses  
 Which items load onto different factors  
-What are the differences in personality structure between Men and Women
-What effect does age have on the distribution of an individual's personality structure
-How does one's country affect one's personality distribution
-Are some countries higher or lower in personality factors than others
+What are the differences in personality structure between Men and Women  
+What effect does age have on the distribution of an individual's personality structure  
+How does one's country affect one's personality distribution  
+Are some countries higher or lower in personality factors than others  
 
 ## Dataset explanation
 
@@ -98,12 +106,29 @@ ncol(ds) # number of variables = 57
 mean(ds$age) # mean age is ~26
 median(ds$age) # median age is 22
 count(ds, 'gender')
+count(ds, 'country')
+```
+
+The table below shows the disproportion between survey participants, and their country of origin.
+```{r, echo=FALSE}
+table <- count(df = ds, vars = 'country')
+newdata <- table[which(table$freq>100),]
+knitr::kable(x = newdata)
+```
+
+
+
+
+The mean age is approximately 26, and the median age is 22. The histogram below clearly shows that age is not normally distributed, and is skewed to the right. This might have an impact on the estimating the effect of age upon one's psychological structure.
+
+```{r, echo=FALSE}
+hist(ds$age, main = "Distribution of Age", xlab = "age", ylab = "frequency", breaks = 100, col = "red")
 ```
 
 
 ## Model Specification
 
-Restrictions are placed on E1, N1, A2, C1, O1, the items that positively correlated with each personality trait. This means that positive loadings relate to stronger values for that particular personality trait, whereas negative loadings imply there is a negative relation. For example, if Extroversion loads negatively (loading=-0.45) onto Neuroticism, this means that those higher in the trait Extroversion, will on average have lower levels of the trait Neuroticism.
+Restrictions are placed on E1, N1, A2, C1, O1, the items that positively correlated with each personality trait. This means that positive loadings relate to stronger values for that particular personality trait, whereas negative loadings imply there is a negative relation. For example, if Extroversion correlates negatively (loading=-0.45) onto Neuroticism, this means that those higher in the trait Extroversion, will on average have lower levels of the trait Neuroticism.
 
 
 ### Model 1:  Five Factor Model
@@ -210,11 +235,11 @@ models$m3 <- '
       C =~ C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 + C9 + C10
       O =~ O1 + O2 + O3 + O4 + O5 + O6 + O7 + O8 + O9 + O10
     # regressions
-      E ~ US+GB+AU+IE+NL+NO++IN+DK+CA+BE+BR
-      N ~ US+GB+AU+DE+NL+NO+IN+DK+CA+BE+BR
-      A ~ US+FR+AU+DE+IE+IN+DK+CA+BE+BR
-      C ~ US+GB+FR+IT+AU+DE+AT+ID+ES+SE+BR
-      O ~ US+FR+IT+DE+AT+ID+NL+NO+ES+RO+IN+DK+CA+BE+BR
+      E ~ US+GB+AU+IE+NL+NO++IN+DK+CA+BE+BR+PH+SG+ZA
+      N ~ US+GB+AU+DE+NL+NO+IN+DK+CA+BE+BR+PH+PK+ZA
+      A ~ US+FR+AU+DE+IE+IN+DK+CA+BE+BR+PK+NZ+ZA
+      C ~ US+GB+FR+IT+AU+DE+AT+ID+ES+SE+BR+PH+ZA
+      O ~ US+FR+IT+DE+AT+ID+NL+NO+ES+RO+IN+DK+CA+BE+BR+PH+PK+MY+SG+ZA
 '
   fits$m3 <- sem(models$m3, data=ds)
     summary(fits$m3, fit.measures = TRUE, standardized = TRUE)
@@ -302,11 +327,11 @@ models$m5 <- '
       A ~ age + gender + hand
       C ~ age + gender
       O ~ age + gender + hand
-      E ~ US+GB+AU+IE+NL+NO+IN+DK+CA+BE+BR
-      N ~ US+GB+AU+DE+NL+NO+IN+DK+CA+BE+BR
-      A ~ US+FR+AU+DE+IE+IN+DK+CA+BE+BR
-      C ~ US+GB+FR+IT+AU+DE+AT+ID+ES+SE+BR
-      O ~ US+FR+IT+DE+AT+ID+NL+NO+ES+RO+IN+DK+CA+BE+BR
+      E ~ US+GB+AU+IE+NO+IN+DK+BE+BR+PH+SG
+      N ~ US+GB+DE+NO+IN+DK+CA+BE+BR+PH+PK
+      A ~ US+AU+IE+IN+DK+CA+BE+BR+PK+NZ+ZA
+      C ~ US+GB+FR+IT+AU+DE+AT+ID+ES+SE+BR+PH
+      O ~ US+FR+IT+DE+AT+ID+NL+NO+ES+RO+IN+DK+CA+BE+BR+PH+PK+MY+SG+ZA
     # residual correlations
       N7 ~~ N8
       O1 ~~ O8
@@ -357,7 +382,8 @@ core_fitmeasure <- function(fit = fits$m1, fitindicies = v$fitindicies, digits =
 
 ```
 
-# Model Assessment + Model Fit
+\newpage
+## Model Assessment and Model Fit
 ```{r, echo=FALSE}
 # Create table with comparison of models
 knitr::kable(sapply(fits, function(X) core_fitmeasure(X)))
@@ -367,19 +393,19 @@ Chi squares test is statistically significant in all models, which means there i
 
 Models 1-4 appear to not have a good fit based on the CFI index. The CFI value is well below the range where it is considered good (>0.90), and for Model 4 and Model 5, it is just under the threshold.
 
-According to MacCallum, Browne and Sugawara (1996), an RMSEA value of (0.01), (0.05), and (0.08) indicates excellent, good, and mediocre fits respectively. All models have an acceptable RMSEA, which is in the bounds of an acceptable model. Hu & Bentler (1999) deem an SRMR value of less than (0.08) to be a good fit. All models presented have an SRMR value lower than this threshhold.
+According to MacCallum, Browne and Sugawara (1996), an RMSEA value of (0.01), (0.05), and (0.08) indicates excellent, good, and mediocre fits respectively. All models have an acceptable RMSEA, which is in the bounds of an acceptable model. Hu & Bentler (1999) deem an SRMR value of less than (0.08) to be a good fit. All models presented have an SRMR value lower than this threshold.
 
-The choice comes down to Model 4 and Model 5. Model 4 has a marginally better CFI value, but Model 5 has a superior RMSEA and SRMR. There is more parameters estimated in Model 5, and thus we can learn more about the personality structures, and how they relate.
+The choice comes down to Model 4 and Model 5. Model 4 has a marginally better CFI value, but Model 5 has a superior RMSEA and SRMR. There is more parameters estimated in Model 5, and thus we can learn more about the personality structures, thus Model 5 will be analysed.
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, results=FALSE}
 # SEM Path
 semPaths(fits$m5, "model", "stand", style ="LISREL", rotation=1, edge.color="black", edge.label.cex=1, mar=c(10,1,2,1))
 ```
 
-# Model results
+## Model results
 
-## Covariances between Personality Factors
+### Covariances between Personality Factors
 
 Extroversion loads negatively onto Neuroticism (-0.252), and positively onto Agreeableness (0.253), Conscientiousness (0.101) and Openness (0.224). This implies those higher in trait Extroversion on average have lower levels of Neuroticism, and higher levels of Agreeableness, Conscientiousness and Openness.
 
@@ -389,25 +415,28 @@ Agreeableness loads positively onto Consciousnesses (0.128) and Openness (0.160)
 
 Conscientiousness loads marginally positively onto Openness (0.095). This implies that those with higher levels of Consciousness on average may have higher levels of Openness.
 
-## Effect of Gender on Personality Factors
+### Effect of Gender on Personality Factors
 
-Gender, an exogenous variable, is loaded onto the latent factors ENACO as regression coefficients. Women were coded with 0, while men were coded with 1. Gender has a statistically significant loading onto each personality factor. The standardized latent variable for Extroversion loading is (-0.109), for Neuroticism (-0.369), for Agreeableness (-0.458), for Conscientiousness (-0.062), and Openness (0.257). These results imply that women on average have a lower level of Extroversion than men, a higher level of Neuroticism than men, a higher level of Agreeableness than men, a marginally lower level of Conscientiousness, and a lower level of Openness than men.
+Gender, an exogenous variable, is loaded onto the latent factors ENACO as regression coefficients. Women were coded with 0, while men were coded with 1. Gender has a statistically significant loading onto each personality factor. The standardized latent variable for Extroversion loading is (coefficient=-0.109), for Neuroticism (coefficient=-0.370), for Agreeableness (coefficient=-0.233), for Conscientiousness (coefficient=-0.085), and Openness (coefficient=0.158). These results imply that women on average have a higher level of Extroversion, Agreeableness, Neuroticism, and Conscientiousness than men, and a lower level of Openness than men. This result is roughly congruent with the study done by Schmitt et. al. in 2008, except they found that there was negligible average differences in trait Openness between men and women.
 
-## Effect of Age on personality factors
+### Effect of Age on personality factors
 
 Age was statistically significant for all the latent factors ENACO. Age appears to have a positive effect on Extroversion (coefficient=0.008), Agreeableness (coefficient=0.006), Consciousnesses (coefficient=0.014) and Openness (coefficient=0.005), and a negative effect on Neuroticism (coefficient=-0.012). This result implies that as people age, on average they will experience lower levels of negative emotion.
 
-## Effect of dominate hand on personality factors
+### Effect of dominate hand on personality factors
 
-Dominate hand, an exogenous variable is loaded onto the latent factors ENACO as regression coefficients. Right hand coded as 1, Left handed coded as 2, ambidextous coded as 3. For Extroversion, Neuroticism, and Consciousness, the loading was not statistically significant. This implies that being left or right handed does not affect these personality characteristics. For Agreeableness, the coefficient is (-0.030) and for Openness it is (0.090). This implies that those who are left handed, or ambidextrous, are on average lower in the trait Agreeableness, and also on average they are higher in the trait Openness.
+Dominate hand, an exogenous variable is loaded onto the latent factors ENACO as regression coefficients. Right hand coded as 1, Left handed coded as 2, ambidextrous coded as 3. For Extroversion, Neuroticism, and Consciousness, the loading was not statistically significant. This implies that being left or right handed does not affect these personality characteristics. For Agreeableness, the coefficient is (-0.030) and for Openness it is (0.090). This implies that those who are left handed, or ambidextrous, are on average marginally lower in the trait Agreeableness, as well as marginally higher in the trait Openness.
 
-## Effect of country of origin factors
+### Effect of country of origin factors
 
 As well as the self rated race of the survey participant, the geographical location was also recorded, including the IP address of the country in which the test was conducted. The results were not proportionately distributed amoungst the different countries, with the majority of survey participants coming from the US, Britain, Ireland, and Australia, all native English speaking countries. Many of the country factors were not statistically significant, and these were removed from the model.
 
-Below is a list of the Country and their effect upon each latent factors.
+Below is a list of the Country and their effect upon each latent factor.
 
 #### Extroversion  
+
+As can be seen in the table, those countries higher on average in the trait Extroversion include Belgium, Denmark, Ireland, Norway, while countries lower on average seem to be Brazil, Philippines and Singapore.
+
 ```{r, echo=FALSE, warning=FALSE}
 library(readxl)
 country_est <- read_excel("~/Desktop/Structural-equation-modelling/country_est.xlsx")
@@ -416,34 +445,41 @@ knitr::kable(x = country_est[1:11,])
 
 #### Neuroticism
 
+Countries higher on average in trait Neuroticism include Pakistan, Philippines, England, India and Brazil, while those countries lower in trait Neuroticism include Denmark, Norway, Belgium and Germany. 
+
 ```{r, echo=FALSE, warning=FALSE}
 knitr::kable(x = country_est[12:22,])
 ```
 
 #### Agreeableness
 
+Revealed in the table, the countries higher on average in trait Agreeableness include Belgium, Ireland, and India, while those countries lower in Agreeableness include Brazil.
+
 ```{r, echo=FALSE, warning=FALSE}
-knitr::kable(x = country_est[23:32,])
+knitr::kable(x = country_est[23:33,])
 ```
 
 #### Conscientiousness
 
+The table shows those countries higher in the trait Conscientiousness on average include the US, Indonesia, and the Philippines, while countries lower include Austria, Brazil, Germany and France.
+
 ```{r, echo=FALSE, warning=FALSE}
-knitr::kable(x = country_est[33:43,])
+knitr::kable(x = country_est[34:45,])
 ```
 
 #### Openness
 
+The table reveals that those higher in Openness on average are countries like Austria, Germany, Netherlands, Denmark and Brazil, while those countries lower in Openness on average include Malaysia, Pakistan, Philippines, Indonesia and India. According to Butler et al. (2000) higher levels of Openness are associated with liberal ideas, and those lower in Openness tend to support Right or Left-wing Authoritarianism.
+
 ```{r, echo=FALSE, warning=FALSE}
-knitr::kable(x = country_est[44:58,])
+knitr::kable(x = country_est[46:65,])
 ```
 
 ## Conclusion
 
-Despite the limitations with the dataset, there are a number of revealing ideas with this model. 
+Despite the limitations with the dataset, there are a number of revealing ideas. It is roughly congruent with previous studies done on differences in personality structure between nations, as well as gender. Also revealed is the way the Big Five Factors relate to one another, for example, that higher levels of Neuroticism correlate with lower levels of Consciousness, Extroversion, and Openness.
 
-
-
+As stated in the introduction, this is a rapidly evolving field, and with improvements in sourcing data, models of personality structure will become more sophisticated.
 
 
 \newpage
@@ -458,6 +494,10 @@ MacCallum, R. C., Browne, M. W., & Sugawara, H. M. (1996). Power analysis and de
 Hu, L., & Bentler, P. M. (1999). Cutoff criteria for fit indexes in covariance structure analysis: Conventional criteria versus new alternatives. Structural Equation Modeling, 6, 1–55.
 
 Schermelleh-Engel, K., Moosbrugger, H., and Müller, H. (2003), “Evaluating the Fit of Structural Equation Models: Tests of Significance and Descriptive Goodnessof-Fit Measures”, Methods of Psychological Research Online, Vol. 8, No. 2, pp.23-74.
+
+Butler, J. C. (2000). "Personality and emotional correlates of right-wing authoritarianism". Social Behavior and Personality. 28: 1–14. doi:10.2224/sbp.2000.28.1.1.
+
+David P. Schmitt; Realo, A; Voracek, M., & Allik, J. (2008). "Why can't a man be more like a woman? Sex differences in big five personality traits across 55 cultures". Journal of Personality and Social Psychology. 94 (1): 168–182. doi:10.1037/0022-3514.94.1.168. PMID 18179326.
 
 ## Apendix
 
@@ -520,19 +560,19 @@ O10	I am full of ideas.
 
 race 
 
-1 = Mixed Race
-2 = Arctic (Siberian, Eskimo)
-3 = Caucasian (European)
-4 = Caucasian (Indian)
-5 = Caucasian (Middle East)
-6 = Caucasian (North African, Other)
-7 = Indigenous Australian
-8 = Native American
-9 = North East Asian (Mongol, Tibetan, Korean Japanese, etc)
-10 = Pacific (Polynesian, Micronesian, etc)
-11 = South East Asian (Chinese, Thai, Malay, Filipino, etc)
-12 = West African, Bushmen, Ethiopian
-13 = Other (0=missed)
+1 = Mixed Race  
+2 = Arctic (Siberian, Eskimo)  
+3 = Caucasian (European)  
+4 = Caucasian (Indian)  
+5 = Caucasian (Middle East)  
+6 = Caucasian (North African, Other)  
+7 = Indigenous Australian  
+8 = Native American  
+9 = North East Asian (Mongol, Tibetan, Korean Japanese, etc)  
+10 = Pacific (Polynesian, Micronesian, etc)  
+11 = South East Asian (Chinese, Thai, Malay, Filipino, etc)  
+12 = West African, Bushmen, Ethiopian  
+13 = Other (0=missed)  
 
 engnat	Response to "is English your native language?". 1=yes, 2=no (0=missed)
 
@@ -542,7 +582,7 @@ hand	"What hand do you use to write with?". 1=Right, 2=Left, 3=Both (0=missed)
 
 ## R Code
 
-```{r ref.label="exploration", eval=TRUE, echo=TRUE}
+```{r ref.label="exploration", eval=FALSE, echo=TRUE}
 ```
-```{r ref.label="models", eval=TRUE, echo=TRUE}
+```{r ref.label="models", eval=FALSE, echo=TRUE}
 ```
