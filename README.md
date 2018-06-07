@@ -1,5 +1,7 @@
 # Structural Equation Modelling
 
+3 June 2018
+
 ## Abstract
 
 Using a personality dataset from Goldberg et. al. (2000), a series of Structural Equation Models were built to estimate the latent variables Extroversion, Neuroticism, Agreeableness, Conscientiousness and Openness. The model indicated that there is a large amount of cross loading between various items and different latent factors, and strong correlations between items.  
