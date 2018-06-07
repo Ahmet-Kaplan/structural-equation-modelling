@@ -11,3 +11,9 @@ It was found that Women on average have higher levels of the traits Extroversion
 The data also indicated that age on average has a mild negative effect on the trait Neuroticism, which implies that as one ages, the amount of negative emotion experienced should decrease on average. 
 
 The psychological structure of a number of different countries were also explored, indicating which countries tended to be higher or lower on average in the psychological traits.
+
+------------------------------------------------------------------------------------------------------------------------------
+
+The paper can be found above, in report.pdf
+
+
