@@ -1,1 +1,1 @@
-# structural-equation-modelling
+# Structural Equation Modelling
