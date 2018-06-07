@@ -1,6 +1,4 @@
-# Structural Equation Modelling
-
-3 June 2018
+# Structural Equation Modelling         3 June 2018
 
 ## Abstract
 
